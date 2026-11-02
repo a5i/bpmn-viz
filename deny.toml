@@ -1,0 +1,34 @@
+# cargo-deny configuration. Enforce MIT-compatible licensing and a clean
+# dependency graph as required by SPEC-001 section 7.
+[graph]
+all-features = true
+
+[licenses]
+version = 2
+allow = [
+  "MIT",
+  "MIT-0",
+  "Apache-2.0",
+  "Apache-2.0 WITH LLVM-exception",
+  "BSD-2-Clause",
+  "BSD-3-Clause",
+  "ISC",
+  "Unicode-3.0",
+  "Zlib",
+  "CDLA-Permissive-2.0",
+]
+confidence-threshold = 0.93
+
+[bans]
+multiple-versions = "warn"
+wildcards = "deny"
+deny = []
+
+[advisories]
+version = 2
+yanked = "warn"
+
+[sources]
+unknown-registry = "warn"
+unknown-git = "warn"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]

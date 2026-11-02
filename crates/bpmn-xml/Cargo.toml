@@ -1,0 +1,13 @@
+[package]
+name = "bpmn-xml"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "Namespace-aware BPMN 2.0 XML import"
+publish = false
+
+[dependencies]
+bpmn-model = { workspace = true }
+quick-xml = { workspace = true }

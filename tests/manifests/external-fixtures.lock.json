@@ -1,0 +1,12 @@
+{
+  "datasets": [
+    {
+      "name": "BPMN MIWG Test Suite",
+      "url": "https://github.com/bpmn-miwg/bpmn-miwg-test-suite",
+      "revision": null,
+      "license": "CC-BY-3.0",
+      "selected_cases": ["A.1.0", "A.2.0", "A.3.0", "A.4.0", "A.4.1", "C.4.0", "C.8.0"],
+      "note": "Set revision and checksums before invoking download script."
+    }
+  ]
+}

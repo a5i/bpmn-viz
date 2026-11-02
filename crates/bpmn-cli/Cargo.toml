@@ -1,0 +1,25 @@
+[package]
+name = "bpmn-cli"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "BPMN render/inspect/validate command line interface"
+publish = false
+
+[[bin]]
+name = "bpmn"
+path = "src/main.rs"
+
+[dependencies]
+bpmn-model = { workspace = true }
+bpmn-xml = { workspace = true }
+bpmn-validate = { workspace = true }
+bpmn-render = { workspace = true }
+bpmn-svg = { workspace = true }
+bpmn-raster = { workspace = true }
+bpmn-scene = { workspace = true }
+clap = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
