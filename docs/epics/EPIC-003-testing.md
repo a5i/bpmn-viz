@@ -20,7 +20,7 @@ Fixture suite under `tests/fixtures/`, external MIWG pinning under `tests/manife
 ## Acceptance Criteria
 
 - AC-08: Unicode labels, XML escaping, negative/large coordinates and broken inputs do not crash.
-- AC-10: CLI verified on the development platform; CI runs fmt/clippy/tests/DocVera per PR.
+- AC-10: CLI verified on the development platform; CI runs fmt/clippy/tests per PR (DocVera gate is local-only; the `docvera` CI job was removed, see TASK-015).
 - Performance baseline measured and recorded (REPORT-001).
 
 ## Tasks

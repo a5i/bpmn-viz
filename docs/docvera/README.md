@@ -19,7 +19,7 @@ status: active
 
 - Lifecycle **transitions** (proposed → accepted, backlog → done) are plain enum values in the engine; transition discipline is review-enforced, with SHACL policies (`[validation.shacl]`) as a future upgrade path (REPORT-001 next actions).
 - `nonEmpty` checks direct section content only; the specification schema therefore relies on presence counts for numbered sections.
-- The engine has no Git hooks integration; CI runs `scripts/docvera-check.sh` per push instead.
+- The engine has no Git hooks integration; the gate runs locally via `scripts/docvera-check.sh` (also in `scripts/check.sh`). The `docvera` CI job was removed from `.github/workflows/ci.yml` (TASK-015).
 
 ## Sample front matter (validated shape)
 
