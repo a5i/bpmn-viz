@@ -17,9 +17,10 @@ CI must be green on all three OS runners before tagging (TASK-015).
 
 ## Versioning
 
-- Workspace version lives in each crate manifest (single `0.1.0` for the prototype).
+- Workspace version lives in `[workspace.package].version` in the root `Cargo.toml`; every crate inherits it via `version.workspace = true`, and `npm/bpmn-viz/package.json` must match (release.yml enforces all three on tags).
 - `CHANGELOG.md` records user-visible changes per release.
 - Crates are `publish = false` until crates.io names are verified (SPEC-001 open question; TASK-016).
+- The npm package `@a5i/bpmn-viz` is verified for registry availability before its first publish (ADR-0009 open question; TASK-020).
 
 ## Licensing and attribution
 
@@ -39,4 +40,19 @@ CI must be green on all three OS runners before tagging (TASK-015).
 ```sh
 git tag -s v0.1.0 -m "BPMN renderer prototype v0.1.0"
 git push origin v0.1.0
+```
+
+## npm package (`@a5i/bpmn-viz`, ADR-0009/TASK-020)
+
+A `v*.*.*` tag runs `.github/workflows/release.yml`: version-consistency gate, workspace tests, release builds on four platforms (CLI archives + checksums), the WASM build with Node and browser smokes, then **one staged npm package** with all platform binaries plus WASM — nothing publishes without the local 2FA approval (`npm stage approve <stage-id>`). One-time setup: register the npm Trusted Publisher for `@a5i/bpmn-viz` (org `a5i`, repo `bpmn-viz`, workflow `release.yml`, allow `npm stage publish` only) after verifying the package name.
+
+Local equivalents:
+
+```sh
+npm --prefix npm/bpmn-viz run build            # debug addon (dev)
+npm --prefix npm/bpmn-viz run build:release    # release addon
+npm --prefix npm/bpmn-viz run build:wasm       # wasm-pack nodejs/web + assemble
+npm --prefix npm/bpmn-viz test                 # addon tests (BPMN_BIN=… for parity)
+npm --prefix npm/bpmn-viz run test:wasm        # packaged WASM runtime
+npm --prefix npm/bpmn-viz run validate:release # staged-package gate
 ```

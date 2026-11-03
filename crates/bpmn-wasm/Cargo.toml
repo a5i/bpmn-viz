@@ -1,0 +1,23 @@
+[package]
+name = "bpmn-wasm"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "Experimental WebAssembly bindings for the bpmn-viz pipeline (SVG-only; ADR-0009)"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+bpmn-model = { workspace = true }
+bpmn-xml = { workspace = true }
+bpmn-validate = { workspace = true }
+bpmn-render = { workspace = true }
+bpmn-svg = { workspace = true }
+bpmn-layout = { workspace = true }
+wasm-bindgen = "0.2"
+serde = { workspace = true }
+serde-wasm-bindgen = "0.6"

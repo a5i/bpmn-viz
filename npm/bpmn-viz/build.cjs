@@ -1,0 +1,17 @@
+'use strict';
+const { spawnSync } = require('node:child_process');
+const { copyFileSync } = require('node:fs');
+const { join, resolve } = require('node:path');
+const { platformName } = require('./platforms.cjs');
+const binaryName = `bpmn_viz.${platformName()}.node`;
+const root = resolve(__dirname, '../..');
+const release = process.argv.includes('--release');
+const target = join(root, 'target');
+const result = spawnSync('cargo', ['build', '--locked', '-p', 'bpmn-node', '--target-dir', target, ...(release ? ['--release'] : [])], { cwd: root, stdio: 'inherit' });
+if (result.error) throw result.error;
+if (result.status !== 0) process.exit(result.status ?? 1);
+const library = { win32: 'bpmn_node.dll', darwin: 'libbpmn_node.dylib', linux: 'libbpmn_node.so' }[process.platform];
+if (!library) throw new Error(`Unsupported platform: ${process.platform}`);
+copyFileSync(join(target, release ? 'release' : 'debug', library), join(__dirname, binaryName));
+copyFileSync(join(root, 'LICENSE'), join(__dirname, 'LICENSE'));
+console.log(`Built native addon: ${binaryName}`);

@@ -1,0 +1,266 @@
+name: release
+
+# Triggered by v*.*.* tags. Publishes ONE npm package (@a5i/bpmn-viz)
+# containing all four platform binaries plus Node/browser WASM, and GitHub
+# CLI archives. Nothing is published to crates.io: every crate is
+# `publish = false` pending the SPEC-001 namespace question.
+#
+# Setup:
+#   * npm Trusted Publishing (OIDC), no NPM_TOKEN:
+#     bootstrap ONLY @a5i/bpmn-viz, then register its Trusted Publisher:
+#     org a5i, repo bpmn-viz, workflow release.yml, environment empty,
+#     allow npm stage publish only.
+#   * Every release stages ONE npm package. Inspect and approve locally:
+#       npm stage list
+#       npm stage view <stage-id>
+#       npm stage download <stage-id>
+#       npm stage approve <stage-id>  # 2FA; one approval for all platforms
+#
+# Single source of truth for crate versions is [workspace.package].version
+# in the root Cargo.toml; every member inherits it via `version.workspace`.
+# The npm package version in npm/bpmn-viz/package.json must match the tag.
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write # GitHub Release
+  id-token: write # npm provenance
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  check-version:
+    name: Check version consistency
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a # v7.0.1
+
+      - name: Verify versions match tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME#v}"
+
+          # Single source of truth for the Rust crates is
+          # [workspace.package].version in the root Cargo.toml.
+          WS_VERSION=$(awk '
+            /^\[workspace\.package\]/ { in_ws=1; next }
+            /^\[/                      { in_ws=0 }
+            in_ws && /^version *=/     { gsub(/version *= *"|"$/, ""); print; exit }
+          ' Cargo.toml)
+          NPM_VERSION=$(grep -m1 '"version"' npm/bpmn-viz/package.json | sed 's/.*: "\(.*\)".*/\1/' | tr -d ',')
+
+          echo "tag=$TAG"
+          echo "cargo (workspace) = $WS_VERSION"
+          echo "npm               = $NPM_VERSION"
+
+          # Every Cargo crate must inherit the workspace version (no literals).
+          for manifest in crates/*/Cargo.toml; do
+            grep -q '^version\.workspace = true$' "$manifest" \
+              || { echo "crate manifest does not inherit the workspace version: $manifest"; exit 1; }
+          done
+
+          test "$WS_VERSION" = "$TAG"
+          test "$NPM_VERSION" = "$TAG"
+
+  test:
+    name: Test Rust core
+    runs-on: ubuntu-latest
+    needs: check-version
+    steps:
+      - uses: actions/checkout@f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a # v7.0.1
+
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8
+        with:
+          toolchain: "1.99.1"
+
+      - uses: Swatinem/rust-cache@c8037a86dde8214a8310e9f54a8fc61ab362aa31
+
+      - name: Test workspace
+        run: cargo test --locked --workspace
+
+  build:
+    name: Build ${{ matrix.platform }}
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest,    platform: linux-x64-gnu,   binary: bpmn }
+          - { os: ubuntu-24.04-arm, platform: linux-arm64-gnu, binary: bpmn }
+          - { os: macos-latest,     platform: darwin-arm64,    binary: bpmn }
+          - { os: windows-latest,   platform: win32-x64-msvc,  binary: bpmn.exe }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a # v7.0.1
+
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8
+        with:
+          toolchain: "1.99.1"
+
+      - uses: Swatinem/rust-cache@c8037a86dde8214a8310e9f54a8fc61ab362aa31
+        with:
+          key: ${{ matrix.platform }}
+
+      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+        with:
+          node-version: 22
+
+      - name: Build CLI (release)
+        run: cargo build --locked --release -p bpmn-cli
+
+      # build.cjs writes the uniquely named binary bpmn_viz.<platform>.node.
+      - name: Build native addon (release)
+        working-directory: npm/bpmn-viz
+        run: npm run build:release
+
+      - name: Smoke-test addon against release CLI
+        working-directory: npm/bpmn-viz
+        run: npm test
+        env:
+          BPMN_BIN: ${{ github.workspace }}/target/release/${{ matrix.binary }}
+
+      - name: Archive CLI binary + checksum
+        shell: bash
+        run: |
+          cd target/release
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            7z a "../../bpmn-${{ matrix.platform }}.zip" "${{ matrix.binary }}"
+          else
+            tar -czf "../../bpmn-${{ matrix.platform }}.tar.gz" "${{ matrix.binary }}"
+          fi
+          cd ../..
+          sha256sum bpmn-${{ matrix.platform }}.* | tee "sha256-${{ matrix.platform }}.txt"
+
+      - name: Upload npm binary
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: npm-${{ matrix.platform }}
+          path: npm/bpmn-viz/bpmn_viz.${{ matrix.platform }}.node
+          if-no-files-found: error
+
+      - name: Upload CLI binary
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: cli-${{ matrix.platform }}
+          path: |
+            bpmn-${{ matrix.platform }}.*
+            sha256-${{ matrix.platform }}.txt
+          if-no-files-found: error
+
+  build-wasm:
+    name: Build and test bundled WASM
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a # v7.0.1
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8
+        with:
+          toolchain: "1.99.1"
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@c8037a86dde8214a8310e9f54a8fc61ab362aa31
+        with:
+          key: wasm-release
+      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: crates/bpmn-wasm/package-lock.json
+      - run: npm --prefix crates/bpmn-wasm ci
+      - name: Install Playwright Chromium
+        working-directory: crates/bpmn-wasm
+        run: npm exec -- playwright install --with-deps chromium
+      - run: npm --prefix npm/bpmn-viz run build:wasm
+      - run: npm --prefix crates/bpmn-wasm test
+      - run: npm --prefix crates/bpmn-wasm run test:browser
+      - run: npm --prefix npm/bpmn-viz run test:wasm
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: wasm-runtime
+          path: npm/bpmn-viz/wasm/
+          if-no-files-found: error
+
+  publish-npm:
+    name: Stage npm package (pending 2FA approval)
+    runs-on: ubuntu-latest
+    needs: [build, build-wasm]
+    steps:
+      - uses: actions/checkout@f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a # v7.0.1
+
+      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      # npm Trusted Publishing (OIDC) requires npm CLI >= 11.5.1; staged
+      # publishing (npm stage publish) requires npm CLI >= 11.15.0.
+      - name: Upgrade npm
+        run: npm install -g npm@latest
+
+      - name: Download platform binaries
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          pattern: npm-*
+          path: npm/bpmn-viz
+          merge-multiple: true
+
+      - name: Download WASM runtime into the same package
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: wasm-runtime
+          path: npm/bpmn-viz/wasm
+
+      - name: Select npm dist-tag
+        working-directory: npm/bpmn-viz
+        run: |
+          VERSION=$(node -p 'require("./package.json").version.split("+")[0]')
+          if [[ "$VERSION" == *-* ]]; then
+            echo "NPM_DIST_TAG=next" >> "$GITHUB_ENV"
+          else
+            echo "NPM_DIST_TAG=latest" >> "$GITHUB_ENV"
+          fi
+
+      - name: Validate single npm package
+        working-directory: npm/bpmn-viz
+        run: |
+          cp ../../LICENSE LICENSE
+          npm run validate:release
+          npm pack --dry-run
+      - name: Stage npm package
+        working-directory: npm/bpmn-viz
+        run: npm stage publish --access public --tag "$NPM_DIST_TAG"
+
+      - name: Pending approval reminder
+        run: |
+          echo "One @a5i/bpmn-viz package staged for ${GITHUB_REF_NAME#v}, containing all four platforms."
+          echo "Inspect with npm stage list/view/download, then approve locally with 2FA:"
+          echo "  npm stage approve <stage-id>"
+          echo "npm dist-tag: $NPM_DIST_TAG"
+
+  github-release:
+    name: GitHub Release with CLI binaries
+    runs-on: ubuntu-latest
+    needs: [test, build]
+    steps:
+      - uses: actions/checkout@f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a # v7.0.1
+
+      - name: Download CLI binaries
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          pattern: cli-*
+          path: dist
+          merge-multiple: true
+
+      - name: Create release
+        shell: bash
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --title "bpmn-viz ${GITHUB_REF_NAME#v}" \
+            --generate-notes \
+            dist/*
+        env:
+          GH_TOKEN: ${{ github.token }}

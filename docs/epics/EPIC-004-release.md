@@ -5,7 +5,7 @@ title: Documentation and release
 status: in_progress
 relations:
   implements: [SPEC-001]
-  children: [TASK-002, TASK-016]
+  children: [TASK-002, TASK-016, TASK-020]
 ---
 # Documentation and release
 
@@ -27,3 +27,4 @@ DocVera-managed documentation with verified CLI integration, ADRs, license notic
 
 - [x] [TASK-002](../tasks/TASK-002-docvera-spike.md) — DocVera CLI/schema spike (done)
 - [ ] [TASK-016](../tasks/TASK-016-published-api-docs.md) — published API and docs (in_progress: docs done, crates.io naming/publish pending)
+- [ ] [TASK-020](../tasks/TASK-020-node-wasm-bindings.md) — Node.js and WebAssembly bindings (in_progress; ADR-0009 proposal)

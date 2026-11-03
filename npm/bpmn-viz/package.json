@@ -1,0 +1,36 @@
+{
+  "name": "@a5i/bpmn-viz",
+  "version": "0.1.0",
+  "description": "Native Node.js and WebAssembly bindings for bpmn-viz, a deterministic BPMN 2.0 parser, auto-layout engine and SVG/PNG renderer",
+  "license": "MIT",
+  "type": "commonjs",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "exports": {
+    ".": { "types": "./index.d.ts", "default": "./index.js" },
+    "./wasm": {
+      "types": "./wasm/index.d.ts",
+      "browser": "./wasm/index.mjs",
+      "node": { "import": "./wasm/node.mjs", "require": "./wasm/node.cjs" },
+      "default": "./wasm/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/a5i/bpmn-viz",
+    "directory": "npm/bpmn-viz"
+  },
+  "files": ["index.js", "index.d.ts", "platforms.cjs", "wasm/", "bpmn_viz.*.node", "LICENSE"],
+  "engines": { "node": ">=22" },
+  "publishConfig": { "access": "public" },
+  "scripts": {
+    "build": "node build.cjs",
+    "build:release": "node build.cjs --release",
+    "build:wasm": "npm --prefix ../../crates/bpmn-wasm run build && node scripts/assemble-wasm.cjs",
+    "test": "node --test test/*.test.cjs",
+    "test:wasm": "node --test test/wasm/*.test.cjs",
+    "test:wasm:browser": "node ../../crates/bpmn-wasm/test/browser.cjs",
+    "validate:release": "node scripts/validate-release.cjs"
+  }
+}

@@ -1,0 +1,19 @@
+'use strict';
+
+// One npm package contains every supported platform binary, as in DocVera.
+// Intel macOS is retired; Linux binaries are glibc (gnu) builds.
+const PLATFORMS = {
+  'linux-x64': 'linux-x64-gnu',
+  'linux-arm64': 'linux-arm64-gnu',
+  'darwin-arm64': 'darwin-arm64',
+  'win32-x64': 'win32-x64-msvc',
+};
+
+function platformName(os = process.platform, arch = process.arch) {
+  const name = PLATFORMS[`${os}-${arch}`];
+  if (!name) throw new Error(`Unsupported bpmn-viz platform: ${os}-${arch}`);
+  return name;
+}
+
+const binaryNames = Object.values(PLATFORMS).map(name => `bpmn_viz.${name}.node`);
+module.exports = { platformName, binaryNames };

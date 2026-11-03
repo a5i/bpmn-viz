@@ -1,8 +1,22 @@
 [workspace]
 resolver = "2"
 members = ["crates/*"]
+# Bindings (bpmn-node, bpmn-wasm) are members but not default: root
+# cargo build/test/clippy keeps covering the core crates only (ADR-0009).
+default-members = [
+  "crates/bpmn-cli",
+  "crates/bpmn-layout",
+  "crates/bpmn-model",
+  "crates/bpmn-raster",
+  "crates/bpmn-render",
+  "crates/bpmn-scene",
+  "crates/bpmn-svg",
+  "crates/bpmn-validate",
+  "crates/bpmn-xml",
+]
 
 [workspace.package]
+version = "0.1.0"
 edition = "2024"
 license = "MIT"
 repository = "https://github.com/a5i/bpmn-viz"

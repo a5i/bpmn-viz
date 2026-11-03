@@ -1,0 +1,16 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>bpmn-wasm browser smoke</title>
+<pre id="result">RUNNING</pre>
+<script type="module">
+  const result = document.getElementById('result');
+  try {
+    const { default: init, BpmnDocument } = await import('../pkg-web/bpmn_wasm.js');
+    const { smoke } = await import('./shared.mjs');
+    await init();
+    smoke({ BpmnDocument });
+    result.textContent = 'PASS';
+  } catch (error) {
+    result.textContent = `FAIL ${error}`;
+  }
+</script>

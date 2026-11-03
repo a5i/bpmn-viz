@@ -1,0 +1,30 @@
+[package]
+name = "bpmn-node"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "Node.js bindings for the bpmn-viz pipeline (napi-rs); shipped via npm as @a5i/bpmn-viz"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+test = false
+doctest = false
+
+[dependencies]
+bpmn-model = { workspace = true }
+bpmn-xml = { workspace = true }
+bpmn-validate = { workspace = true }
+bpmn-render = { workspace = true }
+bpmn-svg = { workspace = true }
+bpmn-raster = { workspace = true }
+bpmn-scene = { workspace = true }
+bpmn-layout = { workspace = true }
+napi = { version = "3", features = ["tokio_rt", "serde-json"] }
+napi-derive = "3"
+tokio = { version = "1", features = ["rt"] }
+
+[build-dependencies]
+napi-build = "2"

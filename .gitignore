@@ -22,3 +22,17 @@ tools/reference-layout/node_modules/
 
 # proptest auto-generated regression persistence
 **/*.proptest-regressions
+
+# wasm-pack build outputs (crates/bpmn-wasm), rebuilt via npm run build
+crates/bpmn-wasm/pkg-node/
+crates/bpmn-wasm/pkg-web/
+crates/bpmn-wasm/node_modules/
+
+# Node bindings (ADR-0009): build outputs and local dev binary
+node_modules/
+npm-debug.log*
+npm/bpmn-viz/*.node
+npm/bpmn-viz/*.tgz
+npm/bpmn-viz/LICENSE
+npm/bpmn-viz/wasm/node/
+npm/bpmn-viz/wasm/web/
