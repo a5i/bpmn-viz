@@ -12,7 +12,7 @@ Layers (ADR-0004), cheapest first:
 2. **Fixture integration tests** are in `crates/bpmn-cli/tests/{parse,render,cli}.rs` and reference fixtures from the workspace-root `tests/fixtures/` directory.
 3. **Golden test** — `tests/fixtures/minimal/start-task-end.svg` is compared byte-for-byte. To update it intentionally: `cargo run -p bpmn-cli -- render tests/fixtures/minimal/start-task-end.bpmn --output tests/fixtures/minimal/start-task-end.svg`, review the diff, commit.
 4. **PNG assertions** check dimensions and non-background pixel counts at 1x/2x — never pixel equality.
-5. **MIWG smoke** — after `scripts/download-fixtures.sh`: `for f in external/*.bpmn; do bpmn validate "$f"; done` (expect 0 errors).
+5. **External corpora smoke** — after `scripts/download-fixtures.sh`: `for f in external/*.bpmn external/pmo/bpmn/*.bpmn; do bpmn validate "$f"; done`. Findings on real-world files are data diagnostics, not tool crashes; expected counts are recorded in [REPORT-002](../reports/REPORT-002-external-corpus-smoke.md). PMo no-DI layout smoke: `cargo test -p bpmn-layout --test corpus_pmo` (self-skips without `external/`; per-PR CI stays synthetic-only per ADR-0005).
 
 ## Writing a regression test
 

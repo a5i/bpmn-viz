@@ -25,6 +25,7 @@ CI must be green on all three OS runners before tagging (TASK-015).
 
 - Code is MIT (`LICENSE`).
 - BPMN MIWG data is CC-BY-3.0 and is **not** redistributed; if a release artifact bundles diagrams generated from MIWG files, attribute the [BPMN MIWG test suite](https://github.com/bpmn-miwg/bpmn-miwg-test-suite) and cite the pinned revision from `tests/manifests/external-fixtures.lock.json`.
+- PMo Dataset (Zenodo 10.5281/zenodo.15857589) is CC-BY-4.0 and is **not** redistributed; attribute "PMo Dataset v1.0.0, Brissard, Cuppens & Zouaq (Polytechnique Montréal)" and cite Brissard et al., *What is the Best Process Model Representation? A Comparative Analysis for Process Modeling with Large Language Models*, AI4BPM Workshop at BPM 2025, alongside the pinned version from `tests/manifests/external-fixtures.lock.json`.
 - Dependency license compliance is enforced by `deny.toml` (`cargo deny check licenses`); generate notices with `cargo about` if a binary distribution is produced.
 
 ## Reproducibility

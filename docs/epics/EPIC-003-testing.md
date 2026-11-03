@@ -5,7 +5,7 @@ title: Quality
 status: in_progress
 relations:
   implements: [SPEC-001]
-  children: [TASK-001, TASK-012, TASK-013, TASK-014, TASK-015]
+  children: [TASK-001, TASK-012, TASK-013, TASK-014, TASK-015, TASK-019]
 ---
 # Quality
 
@@ -30,3 +30,4 @@ Fixture suite under `tests/fixtures/`, external MIWG pinning under `tests/manife
 - [x] [TASK-013](../tasks/TASK-013-golden-tests.md) — golden tests (done)
 - [ ] [TASK-014](../tasks/TASK-014-fuzz-security.md) — fuzz/security (in_progress: harnesses authored, libfuzzer runs pending nightly CI)
 - [ ] [TASK-015](../tasks/TASK-015-cross-platform-ci.md) — cross-platform CI (in_progress: workflow written, first non-Windows-runner run pending)
+- [ ] [TASK-019](../tasks/TASK-019-external-corpus-manifests.md) — external corpus manifests (in review: MIWG full set + PMo pinned, smoke baseline in REPORT-002; CODECS rejected after audit)
