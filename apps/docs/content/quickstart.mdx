@@ -1,0 +1,53 @@
+Go from a folder of BPMN files to rendered diagrams. You need Rust 1.99 or newer (pinned in `rust-toolchain.toml`) to build the CLI from source.
+
+## 1. Install the CLI
+
+```sh
+cargo install --locked --git https://github.com/a5i/bpmn-viz bpmn-cli
+bpmn --version
+```
+
+Building from a checkout works the same way:
+
+```sh
+cargo install --path crates/bpmn-cli    # provides the `bpmn` binary
+```
+
+## 2. Render a diagram
+
+```sh
+bpmn render order-flow.bpmn --format svg --output diagram.svg
+bpmn render order-flow.bpmn --format png --scale 2 --output diagram.png
+bpmn render order-flow.bpmn --output -                     # SVG to stdout
+bpmn render order-flow.bpmn --diagram 1 --output b.svg     # by index or id
+```
+
+The output format is inferred from the output extension when `--format` is omitted. When a file contains several `bpmndi:BPMNDiagram` elements, select one with `--diagram`; the default (first diagram) warns so nothing is silently dropped.
+
+Geometry comes from the BPMNDI section — bpmn-viz draws what the model says, never what it guesses.
+
+## 3. Check before you render
+
+```sh
+bpmn validate order-flow.bpmn
+bpmn validate order-flow.bpmn --format json --strict
+bpmn inspect order-flow.bpmn --format json
+```
+
+Validation reports dangling references, duplicate ids and DI coverage problems with stable codes (`reference.dangling`, `di.missing_shape`, …), severity, element id and source location. `--strict` treats warnings as errors. Invalid models cause a nonzero exit status, which makes `bpmn validate` a clean CI gate — keep the same models in version control so a pull request reviews both the process and its diagram.
+
+## 4. Models without DI
+
+Models that ship no BPMNDI section fail validation with an actionable diagnostic instead of a blank canvas. Render them through the layered auto-layout engine with the JavaScript bindings, or the `bpmn-layout` crate — see [Auto-layout](/docs/layout/). CLI wiring for generated-DI rendering is planned under EPIC-005.
+
+## Using Node.js instead
+
+```sh
+npm install @a5i/bpmn-viz
+```
+
+The package root loads the native addon on supported platforms. Browser integrations must explicitly use **`@a5i/bpmn-viz/wasm`**. See [Node.js & WASM](/docs/bindings/) for the in-memory API.
+
+## Next steps
+
+Read the [CLI reference](/docs/cli/) for the full command surface, or use the [playground](/playground/) to experiment without installing anything.

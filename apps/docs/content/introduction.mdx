@@ -1,0 +1,47 @@
+bpmn-viz turns BPMN 2.0 XML into **validated, deterministic diagrams**. Your models stay plain files. The engine checks the contracts around them and draws exactly what the spec describes.
+
+## Keep the files. Add confidence.
+
+BPMN is easy to draw in a modeling tool. But a dangling sequence flow, a shape without geometry, or a pool that references nothing can quietly turn a shared process model into guesswork.
+
+With bpmn-viz you can:
+
+- **Parse every dialect** with namespace-aware import — vendor prefixes and extensions never crash the reader.
+- **Validate structure and DI** with stable diagnostic codes, severities and source locations.
+- **Render deterministic SVG** at the exact coordinates the Diagram Interchange provides.
+- **Export PNG** through pinned resvg fonts and explicit scale.
+- **Auto-layout no-DI models** with a native BPMN-aware layered engine.
+
+## Three pieces, one pipeline
+
+Every stage is an independent crate that returns structured diagnostics. The semantic model never contains geometry; the DI model never contains semantics.
+
+```text
+BPMN XML bytes
+  └─ bpmn-xml       namespace-aware import, bounded and entity-safe
+       └─ bpmn-model     semantic elements + DI types + diagnostics
+            └─ bpmn-validate  references, geometry, DI coverage
+                 └─ bpmn-render   glyphs, flows and labels → scene
+                      └─ bpmn-svg      deterministic scene → SVG
+                           └─ bpmn-raster   SVG → PNG (resvg)
+                                └─ bpmn-cli   render / inspect / validate
+```
+
+There is no browser, no Node.js runtime and no C dependency to manage. The CLI reads files and writes bytes; the JavaScript bindings receive XML text in memory.
+
+## Choose your entry point
+
+- **[CLI quickstart](/docs/quickstart/)** — build the CLI and render your first diagram.
+- **[CLI reference](/docs/cli/)** — every flag, exit code and diagnostic shape.
+- **[Auto-layout](/docs/layout/)** — render models that ship no BPMNDI section.
+- **[Node.js & WASM](/docs/bindings/)** — drive the engine from JavaScript.
+
+## Try it before installing
+
+The playground executes the actual Rust engine compiled to WebAssembly. It renders automatically — point a flow at a missing id and watch the diagnostic appear.
+
+<Playground compact />
+
+## Current boundaries
+
+bpmn-viz is a prototype (SPEC-001 implemented; crates not yet published). The WASM build covers parse, validate, auto-layout and SVG — PNG rasterization is native-only. CLI wiring for generated-DI rendering is planned under EPIC-005. See the [architecture notes](/docs/architecture/) for the full picture.

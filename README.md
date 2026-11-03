@@ -46,7 +46,7 @@ All seven reference cases of the [BPMN MIWG test suite](https://github.com/bpmn-
 
 ## Documentation
 
-Documentation is managed as schema-validated Markdown ([DocVera](docs/docvera/README.md)); start at the [documentation index](docs/index.md):
+A browsable documentation site with a live WASM playground lives in `apps/docs` (TASK-021); build it with `npm ci && npm run build` in `apps/docs` and serve `out/`. Documentation is managed as schema-validated Markdown ([DocVera](docs/docvera/README.md)); start at the [documentation index](docs/index.md):
 
 - [SPEC-001 — prototype specification](docs/specifications/SPEC-001-bpmn-renderer.md)
 - [ADRs](docs/adr/ADR-0001-rust-only-rendering-pipeline.md) — accepted architecture decisions

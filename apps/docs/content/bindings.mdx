@@ -1,0 +1,52 @@
+Use the same Rust pipeline from JavaScript: a native Node.js addon for full capability, and a portable WebAssembly build for the browser — shipped in one npm package, `@a5i/bpmn-viz` ([ADR-0009](https://github.com/a5i/bpmn-viz/blob/main/docs/adr/ADR-0009-node-wasm-bindings.md)).
+
+## Install once, choose explicitly
+
+```sh
+npm install @a5i/bpmn-viz
+```
+
+The package root loads the native addon on supported platforms (linux-x64-gnu, linux-arm64-gnu, darwin-arm64, win32-x64-msvc). Browser integrations must explicitly use **`@a5i/bpmn-viz/wasm`** — the root entry is the native addon, not the browser build.
+
+## Open a document
+
+Both bindings wrap one reusable `BpmnDocument`. The native addon is Promise-based and runs heavy work off the JS thread; the WASM binding is synchronous:
+
+```ts
+import { init, BpmnDocument } from '@a5i/bpmn-viz/wasm';
+
+await init();
+const document = new BpmnDocument(xml);
+try {
+  const inspect = document.inspect();     // same contract as `bpmn inspect`
+  const report = document.validate();     // diagnostics with stable codes
+  const svg = document.renderSvg({ diagram: 'BPMNDiagram_2' });
+  console.log(svg.svg, svg.width, svg.height);
+} finally {
+  document.free();
+}
+```
+
+Every JSON contract mirrors the CLI: `inspect()` returns the `bpmn inspect --format json` envelope, `validate()` returns ordered diagnostics with `code`, `severity`, `elementId`, `line` and `column`.
+
+## Keep the UI responsive
+
+A synchronous WASM call blocks its calling thread. For interactive editors, move the document into a module Web Worker and pass XML text through `postMessage` — exactly what [this site's playground](/playground/) does, with a hard client-side timeout. No user input is sent to a server.
+
+## Generate DI for no-DI models
+
+`layout()` returns generated Diagram Interchange as JSON; `renderLayoutSvg()` lays out and renders in one call. See [Auto-layout](/docs/layout/) for the engine contract and its limits.
+
+## Know the portable boundary
+
+The WASM build intentionally excludes `resvg` and font databases to stay small ([ADR-0009](https://github.com/a5i/bpmn-viz/blob/main/docs/adr/ADR-0009-node-wasm-bindings.md)):
+
+- **No PNG rasterization** — draw `renderSvg()` output onto a canvas instead.
+- **No filesystem access** — pass XML text, not paths.
+- **SVG only** — native Node.js and the CLI cover PNG.
+
+Consult the [package types](https://github.com/a5i/bpmn-viz/blob/main/npm/bpmn-viz/index.d.ts) for the complete API and platform table.
+
+## Release status
+
+The bindings land with TASK-020; the npm package is published through the staged release workflow with provenance. Until then, build it from a checkout with `npm --prefix npm/bpmn-viz run build`.

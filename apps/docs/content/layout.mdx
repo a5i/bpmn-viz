@@ -1,0 +1,52 @@
+Many BPMN files in the wild carry no `bpmndi:BPMNDiagram` at all — semantics only. bpmn-viz never invents geometry silently: validating such a model reports the missing Diagram Interchange with an actionable diagnostic. When you *want* generated geometry, the native layered engine lays the process out explicitly.
+
+## Two engines, one contract
+
+The layout engine ([ADR-0006](https://github.com/a5i/bpmn-viz/blob/main/docs/adr/ADR-0006-native-bpmn-aware-layered-layout.md)) understands BPMN structure instead of treating the model as an anonymous graph:
+
+- **Banding** places gateways, tasks and events in rank columns and rows that respect BPMN reading order.
+- **Routing** keeps sequence-flow segments clear of shape interiors, with orthogonal waypoints.
+- **Scope awareness** lays out the selected process (default: the first process with an id), under documented node and flow limits (`maxNodes`, `maxFlows`).
+
+Layout results are ordinary BPMNDI: shapes with bounds, edges with waypoints ([ADR-0007](https://github.com/a5i/bpmn-viz/blob/main/docs/adr/ADR-0007-generated-di-and-layout-modes.md)). The same deterministic renderer then draws them — generated and hand-authored geometry share one output path.
+
+## From JavaScript
+
+The bindings expose `layout()` (generated DI as JSON) and `renderLayoutSvg()` (lay out, then render):
+
+```ts
+import { init, BpmnDocument } from '@a5i/bpmn-viz/wasm';
+
+await init();
+const document = new BpmnDocument(xml);
+try {
+  const svg = document.renderLayoutSvg({ rankGap: 100, nodeGap: 80 });
+  console.log(svg.svg);
+} finally {
+  document.free();
+}
+```
+
+Try it live: open the [playground](/playground/), pick **02 · Auto-layout a no-DI model**, and edit the process — the layout recomputes as you type.
+
+## From Rust
+
+The `bpmn-layout` crate is a standalone stage in the pipeline:
+
+```rust
+use bpmn_layout::{LayoutEngine, LayoutOptions, NativeBpmnLayout, ScopeId};
+
+let engine = NativeBpmnLayout::default();
+let outcome = engine.layout(
+    &model,
+    &ScopeId::process("Process_Order"),
+    &LayoutOptions::default(),
+)?;
+let diagram = outcome.diagram;
+```
+
+Feed the returned DI into `bpmn-render` like any hand-authored diagram.
+
+## Know the boundary
+
+CLI wiring for generated-DI rendering (`--layout generate`) is deliberately deferred and tracked under EPIC-005; today the engine reaches layout through the crate API and the JavaScript bindings. Models with partial DI still render from their provided geometry — the engine never mixes generated and authored bounds for the same element.

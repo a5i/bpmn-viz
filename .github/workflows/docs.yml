@@ -1,0 +1,57 @@
+name: Documentation site
+on:
+  push:
+    paths: ["apps/docs/**", "crates/bpmn-wasm/**", ".github/workflows/docs.yml"]
+  pull_request:
+    paths: ["apps/docs/**", "crates/bpmn-wasm/**", ".github/workflows/docs.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+env:
+  CARGO_TERM_COLOR: always
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a # v7.0.1
+      # The playground serves the wasm-pack `web` artifact (ADR-0009); it is
+      # a build output, so the site build compiles crates/bpmn-wasm first.
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8
+        with:
+          toolchain: "1.99.1"
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@c8037a86dde8214a8310e9f54a8fc61ab362aa31
+        with:
+          key: docs-wasm
+      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            apps/docs/package-lock.json
+            crates/bpmn-wasm/package-lock.json
+      - name: install wasm-pack (pinned via crates/bpmn-wasm devDependency)
+        run: npm --prefix crates/bpmn-wasm ci
+      - name: build WASM browser runtime
+        run: npm --prefix crates/bpmn-wasm run build:web
+      - name: lint, build, typecheck site
+        working-directory: apps/docs
+        run: |
+          npm ci
+          npm run lint
+          npm run build
+          npm run typecheck
+          npm audit --omit=dev
+      - name: install Playwright Chromium
+        working-directory: apps/docs
+        run: npx playwright install --with-deps chromium
+      - name: e2e smoke over the static export
+        working-directory: apps/docs
+        run: npm run test:e2e -- --workers=2
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: docs-browser-results
+          path: apps/docs/test-results/
+          if-no-files-found: ignore

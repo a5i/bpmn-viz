@@ -1,0 +1,55 @@
+The `bpmn` binary reads `.bpmn` and `.bpmn20.xml` files and never modifies them. Every command prints human-readable text by default and a versioned JSON object with `--format json`.
+
+## bpmn render
+
+Render one diagram of a BPMN file to SVG or PNG.
+
+```text
+bpmn render [OPTIONS] --output <OUTPUT> <INPUT>
+
+  -o, --output <OUTPUT>   Output file path or `-` for stdout (SVG only)
+  -f, --format <FORMAT>   svg (default) or png; inferred from the output
+                          extension when omitted
+      --diagram <DIAGRAM> Diagram id, or zero-based index when the value is
+                          a non-negative number. Defaults to the first
+                          diagram (with a warning when the file has several)
+      --scale <SCALE>     Positive finite scale for rasterized output only
+```
+
+SVG output is deterministic: stable element ids, escaped labels, explicit viewBox and markers. PNG output goes through resvg with pinned fonts, so the same input renders to the same bytes on every machine.
+
+## bpmn inspect
+
+Summarize a BPMN file's contents: counts of processes, participants, lanes, nodes by kind, flows and annotations, plus diagram ids.
+
+```sh
+bpmn inspect process.bpmn --format json
+```
+
+## bpmn validate
+
+Validate references, geometry and DI coverage without rendering.
+
+```sh
+bpmn validate process.bpmn [--format json] [--strict]
+```
+
+`--strict` promotes warnings to errors. Diagnostics are ordered, stable and machine-readable: each carries a code such as `reference.dangling` or `di.missing_shape`, a severity, the semantic or DI element id when known, and a one-based source line when available.
+
+## Exit codes
+
+Every command uses the same contract, so scripts only need to check one number:
+
+- `0` — success
+- `2` — invalid usage
+- `3` — invalid BPMN or DI
+- `4` — IO failure
+- `5` — render failure
+
+## Use it as a CI gate
+
+```yaml
+- run: bpmn validate models/*.bpmn --strict
+```
+
+Invalid models fail the job with exit code 3 and a JSON report you can pin or diff. See [TEST-001](https://github.com/a5i/bpmn-viz/blob/main/docs/testing/TEST-001-test-plan.md) for the pinned fixture matrix behind these guarantees.

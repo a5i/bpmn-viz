@@ -1,0 +1,54 @@
+bpmn-viz is a pipeline of small crates (SPEC-001 section 4, ADR-0002). Each stage is independent, testable in isolation, and returns structured diagnostics instead of panicking.
+
+## The pipeline
+
+```text
+BPMN XML bytes
+  └─ bpmn-xml       namespace-aware import (quick-xml, bounded, entity-safe)
+       └─ bpmn-model    semantic elements + DI types + diagnostics
+            └─ bpmn-validate  references, geometry, DI coverage
+                 └─ bpmn-render   DI + semantics → bpmn-scene (glyphs, flows, labels)
+                      └─ bpmn-svg      deterministic scene → SVG (owned writer)
+                           └─ bpmn-raster   SVG → PNG (resvg)
+                                └─ bpmn-cli   render / inspect / validate CLI
+```
+
+`bpmn-layout` plugs in beside `bpmn-render` for models without Diagram Interchange — see [Auto-layout](/docs/layout/).
+
+## Layering rules
+
+- `bpmn-model` depends on nothing workspace-internal; the semantic model contains no geometry and the DI model contains no semantics.
+- `bpmn-scene` knows nothing about BPMN; it is a plain 2D scene with deterministic paint order.
+- Output crates consume scenes, never BPMN types — a new output format would only add a scene consumer.
+- Diagnostics (`bpmn-model::diagnostic`) are the shared currency of every stage, with stable string codes such as `reference.dangling` and `di.missing_shape`.
+
+## The crates
+
+| Crate | Purpose |
+| --- | --- |
+| `bpmn-model` | semantic elements, DI types, stable diagnostics |
+| `bpmn-xml` | namespace-aware import (quick-xml), bounded and entity-safe |
+| `bpmn-validate` | references, geometry, DI coverage |
+| `bpmn-scene` | renderer-agnostic scene primitives |
+| `bpmn-render` | BPMN glyphs and scene construction |
+| `bpmn-svg` | deterministic scene → SVG (owned writer) |
+| `bpmn-raster` | SVG → PNG (resvg) with pixel budgets |
+| `bpmn-layout` | native BPMN-aware layered auto-layout |
+| `bpmn-cli` | `render` / `inspect` / `validate` |
+| `bpmn-node` | napi-rs native addon for Node.js |
+| `bpmn-wasm` | wasm-bindgen portable binding (SVG-only) |
+
+## Determinism promises
+
+- **Preserved geometry.** Shapes and waypoints render at their BPMNDI coordinates; the renderer never recalculates provided layout.
+- **Byte-stable output.** Same input, same options, same SVG bytes — pinned by golden tests (ADR-0004).
+- **Namespaces, not prefixes.** QNames are resolved by namespace URI, so files using `bpmn20:`, custom prefixes or default namespaces parse identically.
+- **Bounded input.** Malformed XML, XXE entities and runaway nesting fail safely with diagnostics (fuzz-tested).
+
+Unknown vendor extensions are ignored with warnings; unsupported symbols render as a conspicuous fallback glyph so the output stays honest. The full compatibility matrix is in [REPORT-001](https://github.com/a5i/bpmn-viz/blob/main/docs/reports/REPORT-001-conformance-baseline.md).
+
+## Where to look next
+
+- [Data model](https://github.com/a5i/bpmn-viz/blob/main/docs/architecture/data-model.md) — elements, DI types and diagnostics.
+- [Render pipeline](https://github.com/a5i/bpmn-viz/blob/main/docs/architecture/render-pipeline.md) — scene construction and paint order.
+- The [ADRs](https://github.com/a5i/bpmn-viz/blob/main/docs/index.md) record every accepted decision behind these rules.
