@@ -1,7 +1,8 @@
-//! Namespace-aware recursive-descent importer for BPMN 2.0 XML.
+//! Namespace-aware streaming importer for BPMN 2.0 XML.
 //!
 //! Safety properties (SPEC-001 section 4):
 //! - bounded input size and nesting depth,
+//! - subprocess nesting is parsed iteratively, so depth never maps to native recursion,
 //! - no entity expansion (custom entities are rejected as syntax errors),
 //! - no external resource fetching,
 //! - unknown elements are skipped, never crash parsing.
@@ -125,7 +126,7 @@ impl ResolvedName {
     }
 }
 
-/// Incremental recursive-descent parser state.
+/// Incremental streaming parser state.
 struct Parser<'a> {
     reader: NsReader<&'a [u8]>,
     source: &'a str,
@@ -817,6 +818,19 @@ impl<'a> Parser<'a> {
         empty: bool,
     ) -> Result<Option<FlowElement>, ParseError> {
         let (attrs, xsi_type) = self.attributes(start);
+        self.parse_flow_element_with(start, name, empty, attrs, xsi_type)
+    }
+
+    /// [`Self::parse_flow_element`] with attributes already resolved; the
+    /// subprocess loop dispatches here so an element is never scanned twice.
+    fn parse_flow_element_with(
+        &mut self,
+        start: &BytesStart<'_>,
+        name: &ResolvedName,
+        empty: bool,
+        attrs: Vec<(String, String)>,
+        xsi_type: Option<String>,
+    ) -> Result<Option<FlowElement>, ParseError> {
         if name.matches(BPMN_MODEL, "sequenceFlow") {
             return self.parse_sequence_flow(&attrs, start, empty);
         }
@@ -862,16 +876,8 @@ impl<'a> Parser<'a> {
                 empty_kind(&node_name),
             )
         } else if node_name == "subProcess" {
-            let triggered_by_event =
-                attr_value(&attrs, "triggeredByEvent").is_some_and(|v| v == "true");
-            let (mut content, mut body) = self.parse_subprocess_node(start)?;
-            content.default_flow_ref = default_flow_ref.clone();
-            apply_default_flags(&mut body);
-            let kind = NodeKind::SubProcess {
-                triggered_by_event,
-                body,
-            };
-            (content, kind)
+            let (content, body) = self.parse_subprocess_node(start)?;
+            return Ok(Some(finished_subprocess(&attrs, content, body)));
         } else {
             let content = self.parse_node_children(start)?;
             let kind = match node_name.as_str() {
@@ -1053,12 +1059,27 @@ impl<'a> Parser<'a> {
     }
 
     /// Subprocess children: nested flow elements plus node references.
+    ///
+    /// `subProcess` nesting is tracked on an explicit heap stack instead of
+    /// native recursion (SPEC-001 section 4): one set of parsing frames
+    /// serves every level, so the configured depth limit can never exhaust
+    /// the thread stack.
     fn parse_subprocess_node(
         &mut self,
         _start: &BytesStart<'_>,
     ) -> Result<(NodeContent, Vec<FlowElement>), ParseError> {
-        let mut content = NodeContent::default();
-        let mut body = Vec::new();
+        /// One open `subProcess` element and its accumulated body.
+        struct SubprocessFrame {
+            attrs: Vec<(String, String)>,
+            content: NodeContent,
+            body: Vec<FlowElement>,
+        }
+
+        let mut stack = vec![SubprocessFrame {
+            attrs: Vec::new(),
+            content: NodeContent::default(),
+            body: Vec::new(),
+        }];
         loop {
             let (_, event) = match self.reader.read_resolved_event() {
                 Ok(pair) => pair,
@@ -1068,41 +1089,62 @@ impl<'a> Parser<'a> {
                 Event::Start(child) => {
                     self.enter()?;
                     let name = self.resolve_name(child.name());
-                    let result = if is_flow_element_name(&name) {
-                        self.parse_flow_element(&child, &name, false)
-                            .map(|element| {
-                                if let Some(element) = element {
-                                    body.push(element);
-                                }
-                            })
+                    let is_flow = is_flow_element_name(&name);
+                    if is_flow {
+                        let (attrs, xsi_type) = self.attributes(&child);
+                        if name.local == "subProcess" && attr_value(&attrs, "id").is_some() {
+                            // Nested non-empty subprocess: open a heap frame
+                            // instead of recursing; depth stays elevated until
+                            // its End event pops the frame below.
+                            stack.push(SubprocessFrame {
+                                attrs,
+                                content: NodeContent::default(),
+                                body: Vec::new(),
+                            });
+                            continue;
+                        }
+                        let parsed =
+                            self.parse_flow_element_with(&child, &name, false, attrs, xsi_type);
+                        if let (Some(element), Some(frame)) = (parsed?, stack.last_mut()) {
+                            frame.body.push(element);
+                        }
                     } else if name.matches(BPMN_MODEL, "incoming") {
-                        self.capture_text(&child).map(|text| {
-                            if let Some(text) = text {
-                                content.incoming.push(text.trim().to_string());
-                            }
-                        })
+                        let text = self.capture_text(&child)?;
+                        if let (Some(text), Some(frame)) = (text, stack.last_mut()) {
+                            frame.content.incoming.push(text.trim().to_string());
+                        }
                     } else if name.matches(BPMN_MODEL, "outgoing") {
-                        self.capture_text(&child).map(|text| {
-                            if let Some(text) = text {
-                                content.outgoing.push(text.trim().to_string());
-                            }
-                        })
+                        let text = self.capture_text(&child)?;
+                        if let (Some(text), Some(frame)) = (text, stack.last_mut()) {
+                            frame.content.outgoing.push(text.trim().to_string());
+                        }
                     } else {
                         self.ignored_elements += 1;
-                        self.skip_subtree(&child)
-                    };
+                        self.skip_subtree(&child)?;
+                    }
                     self.leave();
-                    result?;
                 }
                 Event::Empty(child) => {
                     let name = self.resolve_name(child.name());
                     if is_flow_element_name(&name)
                         && let Some(element) = self.parse_flow_element(&child, &name, true)?
+                        && let Some(frame) = stack.last_mut()
                     {
-                        body.push(element);
+                        frame.body.push(element);
                     }
                 }
-                Event::End(_) => return Ok((content, body)),
+                Event::End(_) => {
+                    self.leave();
+                    let frame = stack
+                        .pop()
+                        .expect("subprocess stack always holds the bottom frame");
+                    let Some(parent) = stack.last_mut() else {
+                        return Ok((frame.content, frame.body));
+                    };
+                    parent
+                        .body
+                        .push(finished_subprocess(&frame.attrs, frame.content, frame.body));
+                }
                 Event::Eof => {
                     return Err(self.syntax_error("unexpected end of document inside `subProcess`"));
                 }
@@ -1768,6 +1810,29 @@ fn apply_default_flags(body: &mut [FlowElement]) {
     }
 }
 
+/// Assembles the `FlowElement` for a completed non-empty `subProcess`.
+/// Shared by the direct parse path and the frame pop in
+/// `parse_subprocess_node` so both produce identical nodes.
+fn finished_subprocess(
+    attrs: &[(String, String)],
+    mut content: NodeContent,
+    mut body: Vec<FlowElement>,
+) -> FlowElement {
+    content.default_flow_ref = attr_value(attrs, "default");
+    apply_default_flags(&mut body);
+    FlowElement::Node(FlowNode {
+        id: attr_value(attrs, "id").unwrap_or_default(),
+        name: attr_value(attrs, "name"),
+        incoming: content.incoming,
+        outgoing: content.outgoing,
+        default_flow_ref: content.default_flow_ref,
+        kind: NodeKind::SubProcess {
+            triggered_by_event: attr_value(attrs, "triggeredByEvent").is_some_and(|v| v == "true"),
+            body,
+        },
+    })
+}
+
 /// Symbol kind for a node name without reading children (empty elements).
 fn kind_from_name(node_name: &str, xsi_type: Option<&str>) -> NodeKind {
     match node_name {
@@ -2108,6 +2173,73 @@ mod tests {
         }
     }
 
+    fn nested_subprocesses(depth: usize) -> String {
+        let mut payload = String::from(
+            "<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\"><process id=\"P\">",
+        );
+        for i in 0..depth {
+            payload.push_str(&format!("<subProcess id=\"d{i}\">"));
+        }
+        for _ in 0..depth {
+            payload.push_str("</subProcess>");
+        }
+        payload.push_str("</process></definitions>");
+        payload
+    }
+
+    #[test]
+    fn depth_limit_boundary_is_inclusive() {
+        // definitions + process occupy depth 1..2, so four nested
+        // subprocesses sit exactly at depth 6.
+        let options = |max_depth: usize| ParseOptions {
+            max_bytes: 64 * 1024 * 1024,
+            max_depth,
+        };
+        let exact = from_xml_with_options(nested_subprocesses(4).as_bytes(), &options(6));
+        assert!(exact.is_ok(), "document at exactly max_depth must parse");
+        let over = from_xml_with_options(nested_subprocesses(5).as_bytes(), &options(6));
+        let error = over.expect_err("one level past max_depth must fail");
+        assert_eq!(error.diagnostic.code.as_str(), "xml.depth_limit");
+    }
+
+    #[test]
+    fn deep_subprocess_nesting_avoids_native_recursion() {
+        // Regression: parsing recursed natively per `subProcess` level, so
+        // deep documents overflowed the thread stack before the depth guard
+        // fired (CI crashed here; local runs only passed thanks to a large
+        // RUST_MIN_STACK). Nesting is heap-tracked now, so even a limit far
+        // above the default parses with constant native stack use.
+        const DEPTH: usize = 5_000;
+        let options = ParseOptions {
+            max_bytes: 64 * 1024 * 1024,
+            max_depth: DEPTH + 2,
+        };
+        let document = from_xml_with_options(nested_subprocesses(DEPTH).as_bytes(), &options)
+            .expect("deep nesting within a raised max_depth must parse");
+        let Some(RootElement::Process(process)) = document.definitions.root_elements.first() else {
+            panic!("expected a process root element");
+        };
+        let mut body: &[FlowElement] = &process.flow_elements;
+        let mut levels = 0usize;
+        loop {
+            let FlowElement::Node(node) = body
+                .first()
+                .expect("subprocess body must hold the next level")
+            else {
+                panic!("expected a flow node at subprocess level {levels}");
+            };
+            let NodeKind::SubProcess { body: inner, .. } = &node.kind else {
+                panic!("expected a nested subProcess at level {levels}");
+            };
+            levels += 1;
+            let inner: &[FlowElement] = inner;
+            if inner.is_empty() {
+                break;
+            }
+            body = inner;
+        }
+        assert_eq!(levels, DEPTH);
+    }
     #[test]
     fn unicode_and_escapes_survive() {
         let document = from_xml(
