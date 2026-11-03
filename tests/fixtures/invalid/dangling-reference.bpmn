@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             id="Defs_Dangling" targetNamespace="http://example.test/invalid">
+  <!-- AC-02: dangling sequence flow reference -->
+  <process id="Process_Dangling" isExecutable="false">
+    <task id="Task_Alpha"/>
+    <sequenceFlow id="Flow_Broken" sourceRef="Task_Alpha" targetRef="Task_Ghost"/>
+    <sequenceFlow id="Flow_Also_Broken" sourceRef="Task_Missing" targetRef="Task_Alpha"/>
+  </process>
+  <bpmndi:BPMNDiagram id="Diagram_Dangling">
+    <bpmndi:BPMNPlane id="Plane_Dangling" bpmnElement="Process_Dangling">
+      <bpmndi:BPMNShape id="Task_Alpha_di" bpmnElement="Task_Alpha">
+        <dc:Bounds x="10" y="10" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_Broken_di" bpmnElement="Flow_Broken">
+        <di:waypoint x="110" y="50"/>
+        <di:waypoint x="200" y="50"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

@@ -14,9 +14,9 @@ use bpmn_model::element::{
     TaskType, TextAnnotation,
 };
 use bpmn_model::{BpmnDocument, Diagnostic, DiagnosticCode, SourceLocation};
+use quick_xml::NsReader;
 use quick_xml::events::{BytesStart, Event};
 use quick_xml::name::{QName, ResolveResult};
-use quick_xml::NsReader;
 
 /// Import tuning and safety limits.
 #[derive(Debug, Clone)]
@@ -101,7 +101,9 @@ fn decode_utf8(bytes: &[u8]) -> Result<&str, ParseError> {
         });
     }
     // Tolerate a UTF-8 BOM.
-    let bytes = bytes.strip_prefix([0xEF, 0xBB, 0xBF].as_slice()).unwrap_or(bytes);
+    let bytes = bytes
+        .strip_prefix([0xEF, 0xBB, 0xBF].as_slice())
+        .unwrap_or(bytes);
     std::str::from_utf8(bytes).map_err(|error| ParseError {
         diagnostic: Diagnostic::error(
             DiagnosticCode::XmlEncoding,
@@ -139,6 +141,7 @@ struct NodeContent {
     incoming: Vec<String>,
     outgoing: Vec<String>,
     event_definition: EventDefinition,
+    default_flow_ref: Option<String>,
 }
 
 impl<'a> Parser<'a> {
@@ -211,7 +214,7 @@ impl<'a> Parser<'a> {
             if raw_key == "xmlns" || raw_key.starts_with("xmlns:") {
                 continue;
             }
-            let Ok(value) = attribute.unescape_value() else {
+            let Ok(value) = attribute.normalized_value(quick_xml::XmlVersion::Implicit1_0) else {
                 self.diagnostics.push(
                     Diagnostic::warning(
                         DiagnosticCode::XmlSyntax,
@@ -258,7 +261,10 @@ impl<'a> Parser<'a> {
             return trimmed.to_string();
         };
         let probe = format!("{prefix}:probe");
-        let (resolve, _) = self.reader.resolver().resolve_attribute(QName(probe.as_str()));
+        let (resolve, _) = self
+            .reader
+            .resolver()
+            .resolve_attribute(QName(probe.as_str()));
         match resolve {
             ResolveResult::Bound(namespace) if namespace.0 == BPMN_MODEL => local.to_string(),
             ResolveResult::Bound(_) => String::new(),
@@ -362,12 +368,11 @@ impl<'a> Parser<'a> {
                     self.enter()?;
                     let name = self.resolve_name(start.name());
                     let result = if name.matches(BPMN_MODEL, "process") {
-                        self.parse_process(&start)
-                            .map(|process| {
-                                self.definitions
-                                    .root_elements
-                                    .push(RootElement::Process(process))
-                            })
+                        self.parse_process(&start).map(|process| {
+                            self.definitions
+                                .root_elements
+                                .push(RootElement::Process(process))
+                        })
                     } else if name.matches(BPMN_MODEL, "collaboration") {
                         self.parse_collaboration(&start).map(|collaboration| {
                             self.definitions
@@ -398,9 +403,9 @@ impl<'a> Parser<'a> {
                     return Ok(());
                 }
                 Event::Eof => {
-                    return Err(self.syntax_error(
-                        "unexpected end of document inside `definitions`",
-                    ));
+                    return Err(
+                        self.syntax_error("unexpected end of document inside `definitions`")
+                    );
                 }
                 _ => {}
             }
@@ -477,11 +482,12 @@ impl<'a> Parser<'a> {
                             }
                         })
                     } else if is_flow_element_name(&name) {
-                        self.parse_flow_element(&child, &name, false).map(|element| {
-                            if let Some(element) = element {
-                                process.flow_elements.push(element);
-                            }
-                        })
+                        self.parse_flow_element(&child, &name, false)
+                            .map(|element| {
+                                if let Some(element) = element {
+                                    process.flow_elements.push(element);
+                                }
+                            })
                     } else {
                         self.ignored_elements += 1;
                         self.skip_subtree(&child)
@@ -508,12 +514,11 @@ impl<'a> Parser<'a> {
                 }
                 Event::End(_) => {
                     self.leave();
+                    apply_default_flags(&mut process.flow_elements);
                     return Ok(process);
                 }
                 Event::Eof => {
-                    return Err(
-                        self.syntax_error("unexpected end of document inside `process`")
-                    );
+                    return Err(self.syntax_error("unexpected end of document inside `process`"));
                 }
                 _ => {}
             }
@@ -548,7 +553,8 @@ impl<'a> Parser<'a> {
                     self.enter()?;
                     let name = self.resolve_name(child.name());
                     let result = if name.matches(BPMN_MODEL, "lane") {
-                        self.parse_lane(&child, false).map(|lane| lane_set.lanes.push(lane))
+                        self.parse_lane(&child, false)
+                            .map(|lane| lane_set.lanes.push(lane))
                     } else {
                         self.ignored_elements += 1;
                         self.skip_subtree(&child)
@@ -568,20 +574,14 @@ impl<'a> Parser<'a> {
                     return Ok(lane_set);
                 }
                 Event::Eof => {
-                    return Err(
-                        self.syntax_error("unexpected end of document inside `laneSet`")
-                    );
+                    return Err(self.syntax_error("unexpected end of document inside `laneSet`"));
                 }
                 _ => {}
             }
         }
     }
 
-    fn parse_lane(
-        &mut self,
-        start: &BytesStart<'_>,
-        empty: bool,
-    ) -> Result<Lane, ParseError> {
+    fn parse_lane(&mut self, start: &BytesStart<'_>, empty: bool) -> Result<Lane, ParseError> {
         let (attrs, _) = self.attributes(start);
         if empty {
             return Ok(Lane {
@@ -653,10 +653,7 @@ impl<'a> Parser<'a> {
             self.skip_subtree(start)?;
             return Ok(None);
         };
-        let mut annotation = TextAnnotation {
-            id,
-            text: None,
-        };
+        let mut annotation = TextAnnotation { id, text: None };
         loop {
             let (_, event) = match self.reader.read_resolved_event() {
                 Ok(pair) => pair,
@@ -681,9 +678,9 @@ impl<'a> Parser<'a> {
                     return Ok(Some(annotation));
                 }
                 Event::Eof => {
-                    return Err(self.syntax_error(
-                        "unexpected end of document inside `textAnnotation`",
-                    ));
+                    return Err(
+                        self.syntax_error("unexpected end of document inside `textAnnotation`")
+                    );
                 }
                 _ => {}
             }
@@ -691,7 +688,7 @@ impl<'a> Parser<'a> {
     }
 
     /// Captures the text content of an element opened by `start`.
-    fn capture_text(&mut self, start: &BytesStart<'_>) -> Result<Option<String>, ParseError> {
+    fn capture_text(&mut self, _start: &BytesStart<'_>) -> Result<Option<String>, ParseError> {
         let mut text = String::new();
         loop {
             let (_, event) = match self.reader.read_resolved_event() {
@@ -722,9 +719,7 @@ impl<'a> Parser<'a> {
                 Event::Empty(_) => {}
                 Event::End(_) => return Ok(Some(text)),
                 Event::Eof => {
-                    return Err(
-                        self.syntax_error("unexpected end of document inside text element")
-                    );
+                    return Err(self.syntax_error("unexpected end of document inside text element"));
                 }
                 _ => {}
             }
@@ -758,12 +753,21 @@ impl<'a> Parser<'a> {
             return Ok(None);
         };
         let node_name = name.local.clone();
+        let default_flow_ref = attr_value(&attrs, "default");
         let (content, kind) = if empty {
-            (NodeContent::default(), kind_from_name(&node_name, xsi_type.as_deref()))
+            (
+                NodeContent {
+                    default_flow_ref: default_flow_ref.clone(),
+                    ..NodeContent::default()
+                },
+                kind_from_name(&node_name, xsi_type.as_deref()),
+            )
         } else if node_name == "subProcess" {
             let triggered_by_event =
                 attr_value(&attrs, "triggeredByEvent").is_some_and(|v| v == "true");
-            let (content, body) = self.parse_subprocess_node(start)?;
+            let (mut content, mut body) = self.parse_subprocess_node(start)?;
+            content.default_flow_ref = default_flow_ref.clone();
+            apply_default_flags(&mut body);
             let kind = NodeKind::SubProcess {
                 triggered_by_event,
                 body,
@@ -788,11 +792,14 @@ impl<'a> Parser<'a> {
             };
             (content, kind)
         };
+        let mut content = content;
+        content.default_flow_ref = default_flow_ref;
         Ok(Some(FlowElement::Node(FlowNode {
             id,
             name: attr_value(&attrs, "name"),
             incoming: content.incoming,
             outgoing: content.outgoing,
+            default_flow_ref: content.default_flow_ref,
             kind,
         })))
     }
@@ -870,9 +877,9 @@ impl<'a> Parser<'a> {
                     })));
                 }
                 Event::Eof => {
-                    return Err(self.syntax_error(
-                        "unexpected end of document inside `sequenceFlow`",
-                    ));
+                    return Err(
+                        self.syntax_error("unexpected end of document inside `sequenceFlow`")
+                    );
                 }
                 _ => {}
             }
@@ -881,10 +888,7 @@ impl<'a> Parser<'a> {
 
     /// Consumes children of a flow node: `incoming`, `outgoing`, event
     /// definition markers, and everything else (skipped).
-    fn parse_node_children(
-        &mut self,
-        start: &BytesStart<'_>,
-    ) -> Result<NodeContent, ParseError> {
+    fn parse_node_children(&mut self, _start: &BytesStart<'_>) -> Result<NodeContent, ParseError> {
         let mut content = NodeContent::default();
         loop {
             let (_, event) = match self.reader.read_resolved_event() {
@@ -927,9 +931,7 @@ impl<'a> Parser<'a> {
                 }
                 Event::End(_) => return Ok(content),
                 Event::Eof => {
-                    return Err(
-                        self.syntax_error("unexpected end of document inside flow node")
-                    );
+                    return Err(self.syntax_error("unexpected end of document inside flow node"));
                 }
                 _ => {}
             }
@@ -939,7 +941,7 @@ impl<'a> Parser<'a> {
     /// Subprocess children: nested flow elements plus node references.
     fn parse_subprocess_node(
         &mut self,
-        start: &BytesStart<'_>,
+        _start: &BytesStart<'_>,
     ) -> Result<(NodeContent, Vec<FlowElement>), ParseError> {
         let mut content = NodeContent::default();
         let mut body = Vec::new();
@@ -953,11 +955,12 @@ impl<'a> Parser<'a> {
                     self.enter()?;
                     let name = self.resolve_name(child.name());
                     let result = if is_flow_element_name(&name) {
-                        self.parse_flow_element(&child, &name, false).map(|element| {
-                            if let Some(element) = element {
-                                body.push(element);
-                            }
-                        })
+                        self.parse_flow_element(&child, &name, false)
+                            .map(|element| {
+                                if let Some(element) = element {
+                                    body.push(element);
+                                }
+                            })
                     } else if name.matches(BPMN_MODEL, "incoming") {
                         self.capture_text(&child).map(|text| {
                             if let Some(text) = text {
@@ -979,27 +982,22 @@ impl<'a> Parser<'a> {
                 }
                 Event::Empty(child) => {
                     let name = self.resolve_name(child.name());
-                    if is_flow_element_name(&name) {
-                        if let Some(element) = self.parse_flow_element(&child, &name, true)? {
-                            body.push(element);
-                        }
+                    if is_flow_element_name(&name)
+                        && let Some(element) = self.parse_flow_element(&child, &name, true)?
+                    {
+                        body.push(element);
                     }
                 }
                 Event::End(_) => return Ok((content, body)),
                 Event::Eof => {
-                    return Err(
-                        self.syntax_error("unexpected end of document inside `subProcess`")
-                    );
+                    return Err(self.syntax_error("unexpected end of document inside `subProcess`"));
                 }
                 _ => {}
             }
         }
     }
 
-    fn parse_collaboration(
-        &mut self,
-        start: &BytesStart<'_>,
-    ) -> Result<Collaboration, ParseError> {
+    fn parse_collaboration(&mut self, start: &BytesStart<'_>) -> Result<Collaboration, ParseError> {
         let (attrs, _) = self.attributes(start);
         let mut collaboration = Collaboration {
             id: attr_value(&attrs, "id"),
@@ -1041,10 +1039,10 @@ impl<'a> Parser<'a> {
                         if let Some(participant) = self.parse_participant(&child, true)? {
                             collaboration.participants.push(participant);
                         }
-                    } else if name.matches(BPMN_MODEL, "messageFlow") {
-                        if let Some(flow) = self.parse_message_flow(&child, true)? {
-                            collaboration.message_flows.push(flow);
-                        }
+                    } else if name.matches(BPMN_MODEL, "messageFlow")
+                        && let Some(flow) = self.parse_message_flow(&child, true)?
+                    {
+                        collaboration.message_flows.push(flow);
                     }
                 }
                 Event::End(_) => {
@@ -1052,9 +1050,9 @@ impl<'a> Parser<'a> {
                     return Ok(collaboration);
                 }
                 Event::Eof => {
-                    return Err(self.syntax_error(
-                        "unexpected end of document inside `collaboration`",
-                    ));
+                    return Err(
+                        self.syntax_error("unexpected end of document inside `collaboration`")
+                    );
                 }
                 _ => {}
             }
@@ -1148,7 +1146,8 @@ impl<'a> Parser<'a> {
                     self.enter()?;
                     let name = self.resolve_name(child.name());
                     let result = if name.matches(BPMN_DI, "BPMNPlane") {
-                        self.parse_plane(&child, false).map(|plane| diagram.plane = plane)
+                        self.parse_plane(&child, false)
+                            .map(|plane| diagram.plane = plane)
                     } else {
                         self.ignored_elements += 1;
                         self.skip_subtree(&child)
@@ -1168,20 +1167,16 @@ impl<'a> Parser<'a> {
                     return Ok(diagram);
                 }
                 Event::Eof => {
-                    return Err(self.syntax_error(
-                        "unexpected end of document inside `BPMNDiagram`",
-                    ));
+                    return Err(
+                        self.syntax_error("unexpected end of document inside `BPMNDiagram`")
+                    );
                 }
                 _ => {}
             }
         }
     }
 
-    fn parse_plane(
-        &mut self,
-        start: &BytesStart<'_>,
-        empty: bool,
-    ) -> Result<Plane, ParseError> {
+    fn parse_plane(&mut self, start: &BytesStart<'_>, empty: bool) -> Result<Plane, ParseError> {
         let (attrs, _) = self.attributes(start);
         if empty {
             return Ok(Plane {
@@ -1231,10 +1226,10 @@ impl<'a> Parser<'a> {
                         if let Some(shape) = self.parse_shape(&child, true)? {
                             plane.shapes.push(shape);
                         }
-                    } else if name.matches(BPMN_DI, "BPMNEdge") {
-                        if let Some(edge) = self.parse_edge(&child, true)? {
-                            plane.edges.push(edge);
-                        }
+                    } else if name.matches(BPMN_DI, "BPMNEdge")
+                        && let Some(edge) = self.parse_edge(&child, true)?
+                    {
+                        plane.edges.push(edge);
                     }
                 }
                 Event::End(_) => {
@@ -1242,9 +1237,7 @@ impl<'a> Parser<'a> {
                     return Ok(plane);
                 }
                 Event::Eof => {
-                    return Err(
-                        self.syntax_error("unexpected end of document inside `BPMNPlane`")
-                    );
+                    return Err(self.syntax_error("unexpected end of document inside `BPMNPlane`"));
                 }
                 _ => {}
             }
@@ -1348,9 +1341,7 @@ impl<'a> Parser<'a> {
                     }));
                 }
                 Event::Eof => {
-                    return Err(self.syntax_error(
-                        "unexpected end of document inside `BPMNShape`",
-                    ));
+                    return Err(self.syntax_error("unexpected end of document inside `BPMNShape`"));
                 }
                 _ => {}
             }
@@ -1385,9 +1376,7 @@ impl<'a> Parser<'a> {
                 Event::Empty(_) => {}
                 Event::End(_) => return Ok(()),
                 Event::Eof => {
-                    return Err(
-                        self.syntax_error("unexpected end of document inside `dc:Bounds`")
-                    );
+                    return Err(self.syntax_error("unexpected end of document inside `dc:Bounds`"));
                 }
                 _ => {}
             }
@@ -1468,9 +1457,7 @@ impl<'a> Parser<'a> {
                     }));
                 }
                 Event::Eof => {
-                    return Err(
-                        self.syntax_error("unexpected end of document inside `BPMNEdge`")
-                    );
+                    return Err(self.syntax_error("unexpected end of document inside `BPMNEdge`"));
                 }
                 _ => {}
             }
@@ -1499,7 +1486,7 @@ impl<'a> Parser<'a> {
         Ok(parsed)
     }
 
-    fn parse_label(&mut self, start: &BytesStart<'_>) -> Result<BpmnLabel, ParseError> {
+    fn parse_label(&mut self, _start: &BytesStart<'_>) -> Result<BpmnLabel, ParseError> {
         let mut bounds = None;
         loop {
             let (_, event) = match self.reader.read_resolved_event() {
@@ -1531,9 +1518,7 @@ impl<'a> Parser<'a> {
                     return Ok(BpmnLabel { bounds });
                 }
                 Event::Eof => {
-                    return Err(self.syntax_error(
-                        "unexpected end of document inside `BPMNLabel`",
-                    ));
+                    return Err(self.syntax_error("unexpected end of document inside `BPMNLabel`"));
                 }
                 _ => {}
             }
@@ -1562,9 +1547,7 @@ impl<'a> Parser<'a> {
                 Event::Empty(_) => {}
                 Event::End(_) => return Ok(()),
                 Event::Eof => {
-                    return Err(
-                        self.syntax_error("unexpected end of document inside `dc:Bounds`")
-                    );
+                    return Err(self.syntax_error("unexpected end of document inside `dc:Bounds`"));
                 }
                 _ => {}
             }
@@ -1650,6 +1633,27 @@ fn gateway_type(local: &str, xsi_type: Option<&str>) -> Option<GatewayType> {
     }
 }
 
+/// Marks sequence flows that are the `default` of a source node.
+fn apply_default_flags(body: &mut [FlowElement]) {
+    let defaults: Vec<String> = body
+        .iter()
+        .filter_map(|element| match element {
+            FlowElement::Node(node) => node.default_flow_ref.clone(),
+            FlowElement::Flow(_) => None,
+        })
+        .collect();
+    if defaults.is_empty() {
+        return;
+    }
+    for element in body {
+        if let FlowElement::Flow(flow) = element
+            && defaults.contains(&flow.id)
+        {
+            flow.is_default = true;
+        }
+    }
+}
+
 /// Symbol kind for a node name without reading children (empty elements).
 fn kind_from_name(node_name: &str, xsi_type: Option<&str>) -> NodeKind {
     match node_name {
@@ -1667,7 +1671,9 @@ fn kind_from_name(node_name: &str, xsi_type: Option<&str>) -> NodeKind {
         },
         _ => {
             if let Some(gateway) = gateway_type(node_name, xsi_type) {
-                NodeKind::Gateway { gateway_type: gateway }
+                NodeKind::Gateway {
+                    gateway_type: gateway,
+                }
             } else if let Some(task_type) = task_type(node_name, xsi_type) {
                 NodeKind::Task { task_type }
             } else {
@@ -1814,11 +1820,15 @@ mod tests {
         .expect("parse");
         assert!(matches!(
             document.find_node("T").unwrap().kind,
-            NodeKind::Task { task_type: TaskType::Service }
+            NodeKind::Task {
+                task_type: TaskType::Service
+            }
         ));
         assert!(matches!(
             document.find_node("G").unwrap().kind,
-            NodeKind::Gateway { gateway_type: GatewayType::Parallel }
+            NodeKind::Gateway {
+                gateway_type: GatewayType::Parallel
+            }
         ));
     }
 
@@ -1836,11 +1846,15 @@ mod tests {
         .expect("parse");
         assert!(matches!(
             document.find_node("S").unwrap().kind,
-            NodeKind::StartEvent { definition: EventDefinition::Timer }
+            NodeKind::StartEvent {
+                definition: EventDefinition::Timer
+            }
         ));
         assert!(matches!(
             document.find_node("E").unwrap().kind,
-            NodeKind::EndEvent { definition: EventDefinition::Terminate }
+            NodeKind::EndEvent {
+                definition: EventDefinition::Terminate
+            }
         ));
     }
 
@@ -1880,14 +1894,19 @@ mod tests {
         .expect("parse");
         let collaboration = document.collaborations().next().unwrap();
         assert_eq!(collaboration.participants.len(), 2);
-        assert_eq!(collaboration.participants[0].process_ref.as_deref(), Some("PA"));
+        assert_eq!(
+            collaboration.participants[0].process_ref.as_deref(),
+            Some("PA")
+        );
         assert_eq!(collaboration.message_flows.len(), 1);
     }
 
     #[test]
     fn malformed_and_missing_root_fail() {
         assert!(from_xml(b"not xml at all <<<").is_err());
-        assert!(from_xml(b"<wrong xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\"/>").is_err());
+        assert!(
+            from_xml(b"<wrong xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\"/>").is_err()
+        );
         assert!(from_xml(b"").is_err());
         assert!(from_xml(&[0xFF, 0xFE, 0x41, 0x00]).is_err());
     }
@@ -1899,10 +1918,10 @@ mod tests {
   <process id="P"><task id="T" name="&a;&a;"/></process>
 </definitions>"#;
         // Either a hard error or a tolerated skip is fine; expansion is not.
-        if let Ok(document) = from_xml(&payload[..]) {
-            if let Some(task) = document.find_node("T") {
-                assert_ne!(task.name.as_deref(), Some("aaaaaaaa"));
-            }
+        if let Ok(document) = from_xml(&payload[..])
+            && let Some(task) = document.find_node("T")
+        {
+            assert_ne!(task.name.as_deref(), Some("aaaaaaaa"));
         }
     }
 
@@ -1913,7 +1932,7 @@ mod tests {
             max_depth: 512,
         };
         let result = from_xml_with_options(MINIMAL.as_bytes(), &options);
-        let error = result.err().expect("size limit");
+        let error = result.expect_err("size limit");
         assert_eq!(error.diagnostic.code.as_str(), "xml.size_limit");
     }
 
@@ -1965,9 +1984,11 @@ mod tests {
         )
         .expect("parse");
         assert!(document.find_node("T").is_some());
-        assert!(document
-            .parse_diagnostics
-            .iter()
-            .any(|d| d.code == DiagnosticCode::IgnoredElement));
+        assert!(
+            document
+                .parse_diagnostics
+                .iter()
+                .any(|d| d.code == DiagnosticCode::IgnoredElement)
+        );
     }
 }

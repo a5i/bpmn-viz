@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC">
+  <!-- AC-02: NaN/infinite bounds -->
+  <process id="Process_BadGeometry" isExecutable="false">
+    <task id="Task_NaN"/>
+  </process>
+  <bpmndi:BPMNDiagram id="Diagram_Bad">
+    <bpmndi:BPMNPlane id="Plane_Bad" bpmnElement="Process_BadGeometry">
+      <bpmndi:BPMNShape id="Task_NaN_di" bpmnElement="Task_NaN">
+        <dc:Bounds x="NaN" y="0" width="Infinity" height="80"/>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

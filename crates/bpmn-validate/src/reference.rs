@@ -2,9 +2,9 @@
 
 use std::collections::{HashMap, HashSet};
 
+use bpmn_model::BpmnDocument;
 use bpmn_model::diagnostic::{Diagnostic, DiagnosticCode};
 use bpmn_model::element::{FlowElement, NodeKind};
-use bpmn_model::BpmnDocument;
 
 /// Semantic ids known to the document plus their owning scope.
 pub struct IdRegistry {
@@ -56,7 +56,10 @@ pub fn build_registry(document: &BpmnDocument) -> IdRegistry {
     };
     let mut note = |registry: &mut IdRegistry, id: &str, scope: &str| {
         *registry.counts.entry(id.to_string()).or_insert(0) += 1;
-        registry.scope.entry(id.to_string()).or_insert_with(|| scope.to_string());
+        registry
+            .scope
+            .entry(id.to_string())
+            .or_insert_with(|| scope.to_string());
     };
     for root in &document.definitions.root_elements {
         match root {
@@ -85,7 +88,10 @@ pub fn build_registry(document: &BpmnDocument) -> IdRegistry {
                 }
             }
             bpmn_model::element::RootElement::Collaboration(collaboration) => {
-                let scope = collaboration.id.clone().unwrap_or_else(|| "<collaboration>".into());
+                let scope = collaboration
+                    .id
+                    .clone()
+                    .unwrap_or_else(|| "<collaboration>".into());
                 if let Some(id) = &collaboration.id {
                     note(&mut registry, id, &scope);
                 }
@@ -161,7 +167,10 @@ pub fn check_references(document: &BpmnDocument) -> Vec<Diagnostic> {
         diagnostics.push(
             Diagnostic::error(
                 DiagnosticCode::DuplicateId,
-                format!("id `{id}` is declared {} times; ids must be unique", registry.counts[id]),
+                format!(
+                    "id `{id}` is declared {} times; ids must be unique",
+                    registry.counts[id]
+                ),
             )
             .with_element_id(id.clone()),
         );
@@ -187,9 +196,10 @@ pub fn check_references(document: &BpmnDocument) -> Vec<Diagnostic> {
             }
             bpmn_model::element::RootElement::Collaboration(collaboration) => {
                 for participant in &collaboration.participants {
-                    if let Some(process_ref) = &participant.process_ref {
-                        if !registry.processes.contains(process_ref) {
-                            diagnostics.push(
+                    if let Some(process_ref) = &participant.process_ref
+                        && !registry.processes.contains(process_ref)
+                    {
+                        diagnostics.push(
                                 Diagnostic::error(
                                     DiagnosticCode::DanglingReference,
                                     format!(
@@ -198,18 +208,20 @@ pub fn check_references(document: &BpmnDocument) -> Vec<Diagnostic> {
                                 )
                                 .with_element_id(participant.id.clone()),
                             );
-                        }
                     }
                 }
                 for flow in &collaboration.message_flows {
-                    for (role, reference) in [("sourceRef", &flow.source_ref), ("targetRef", &flow.target_ref)] {
-                        if !registry.participants.contains(reference) && !registry.nodes.contains(reference) {
+                    for (role, reference) in [
+                        ("sourceRef", &flow.source_ref),
+                        ("targetRef", &flow.target_ref),
+                    ] {
+                        if !registry.participants.contains(reference)
+                            && !registry.nodes.contains(reference)
+                        {
                             diagnostics.push(
                                 Diagnostic::error(
                                     DiagnosticCode::DanglingReference,
-                                    format!(
-                                        "message flow {role} `{reference}` does not exist"
-                                    ),
+                                    format!("message flow {role} `{reference}` does not exist"),
                                 )
                                 .with_element_id(flow.id.clone()),
                             );
@@ -222,15 +234,16 @@ pub fn check_references(document: &BpmnDocument) -> Vec<Diagnostic> {
 
     // DI references (AC-03).
     for diagram in &document.definitions.diagrams {
-        if let Some(plane_element) = &diagram.plane.bpmn_element {
-            if !registry.processes.contains(plane_element)
-                && document.collaborations().all(|c| c.id.as_deref() != Some(plane_element))
-            {
-                diagnostics.push(Diagnostic::warning(
-                    DiagnosticCode::DanglingDiReference,
-                    format!("BPMNPlane references `{plane_element}` which does not exist"),
-                ));
-            }
+        if let Some(plane_element) = &diagram.plane.bpmn_element
+            && !registry.processes.contains(plane_element)
+            && document
+                .collaborations()
+                .all(|c| c.id.as_deref() != Some(plane_element))
+        {
+            diagnostics.push(Diagnostic::warning(
+                DiagnosticCode::DanglingDiReference,
+                format!("BPMNPlane references `{plane_element}` which does not exist"),
+            ));
         }
         for shape in &diagram.plane.shapes {
             if !registry.contains(&shape.bpmn_element) {
@@ -281,7 +294,10 @@ fn check_flows_in_body(
                 }
             }
             FlowElement::Flow(flow) => {
-                for (role, reference) in [("sourceRef", &flow.source_ref), ("targetRef", &flow.target_ref)] {
+                for (role, reference) in [
+                    ("sourceRef", &flow.source_ref),
+                    ("targetRef", &flow.target_ref),
+                ] {
                     if reference.is_empty() {
                         continue; // parse already reported this
                     }
@@ -293,7 +309,8 @@ fn check_flows_in_body(
                             )
                             .with_element_id(flow.id.clone()),
                         );
-                    } else if !scope.is_empty() && registry.scope.get(reference).map(String::as_str) != Some(scope)
+                    } else if !scope.is_empty()
+                        && registry.scope.get(reference).map(String::as_str) != Some(scope)
                     {
                         diagnostics.push(
                             Diagnostic::warning(
@@ -311,12 +328,7 @@ fn check_flows_in_body(
     }
 }
 
-fn check_ref(
-    diagnostics: &mut Vec<Diagnostic>,
-    registry: &IdRegistry,
-    id: &str,
-    context: &str,
-) {
+fn check_ref(diagnostics: &mut Vec<Diagnostic>, registry: &IdRegistry, id: &str, context: &str) {
     if !registry.nodes.contains(id) {
         diagnostics.push(
             Diagnostic::error(

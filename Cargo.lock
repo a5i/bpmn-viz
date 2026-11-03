@@ -100,6 +100,7 @@ dependencies = [
  "bpmn-validate",
  "bpmn-xml",
  "clap",
+ "resvg",
  "serde",
  "serde_json",
 ]
@@ -112,6 +113,7 @@ version = "0.1.0"
 name = "bpmn-raster"
 version = "0.1.0"
 dependencies = [
+ "bpmn-scene",
  "resvg",
  "thiserror",
 ]
@@ -122,7 +124,9 @@ version = "0.1.0"
 dependencies = [
  "bpmn-model",
  "bpmn-scene",
+ "bpmn-xml",
  "kurbo",
+ "thiserror",
 ]
 
 [[package]]
@@ -137,6 +141,7 @@ name = "bpmn-svg"
 version = "0.1.0"
 dependencies = [
  "bpmn-scene",
+ "kurbo",
 ]
 
 [[package]]

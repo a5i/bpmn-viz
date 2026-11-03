@@ -9,5 +9,6 @@ description = "SVG-to-PNG rasterization via resvg"
 publish = false
 
 [dependencies]
+bpmn-scene = { workspace = true }
 resvg = { workspace = true }
 thiserror = { workspace = true }

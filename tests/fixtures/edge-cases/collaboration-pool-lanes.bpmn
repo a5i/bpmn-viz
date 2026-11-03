@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             id="Defs_Collab" targetNamespace="http://example.test/collab">
+  <!-- AC-05: collaboration with pool and lanes -->
+  <collaboration id="Collaboration_1">
+    <participant id="Pool_Buyer" name="Buyer" processRef="Process_Buyer"/>
+    <participant id="Pool_Seller" name="Seller" processRef="Process_Seller"/>
+    <messageFlow id="MessageFlow_1" name="order" sourceRef="StartEvent_B" targetRef="Task_S_Receive"/>
+  </collaboration>
+  <process id="Process_Buyer" isExecutable="false">
+    <startEvent id="StartEvent_B" name="want item">
+      <outgoing>Flow_B1</outgoing>
+    </startEvent>
+    <endEvent id="EndEvent_B" name="ordered">
+      <incoming>Flow_B1</incoming>
+    </endEvent>
+    <sequenceFlow id="Flow_B1" sourceRef="StartEvent_B" targetRef="EndEvent_B"/>
+    <laneSet id="LaneSet_B">
+      <lane id="Lane_Browsing" name="Browsing">
+        <flowNodeRef>StartEvent_B</flowNodeRef>
+      </lane>
+      <lane id="Lane_Checkout" name="Checkout">
+        <flowNodeRef>EndEvent_B</flowNodeRef>
+      </lane>
+    </laneSet>
+  </process>
+  <process id="Process_Seller" isExecutable="false">
+    <receiveTask id="Task_S_Receive" name="receive order">
+      <outgoing>Flow_S1</outgoing>
+    </receiveTask>
+    <serviceTask id="Task_S_Ship" name="ship item">
+      <incoming>Flow_S1</incoming>
+      <outgoing>Flow_S2</outgoing>
+    </serviceTask>
+    <endEvent id="EndEvent_S">
+      <incoming>Flow_S2</incoming>
+    </endEvent>
+    <sequenceFlow id="Flow_S1" sourceRef="Task_S_Receive" targetRef="Task_S_Ship"/>
+    <sequenceFlow id="Flow_S2" sourceRef="Task_S_Ship" targetRef="EndEvent_S"/>
+  </process>
+  <bpmndi:BPMNDiagram id="Diagram_Collab">
+    <bpmndi:BPMNPlane id="Plane_Collab" bpmnElement="Collaboration_1">
+      <bpmndi:BPMNShape id="Pool_Buyer_di" bpmnElement="Pool_Buyer" isHorizontal="true">
+        <dc:Bounds x="160" y="60" width="520" height="160"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Browsing_di" bpmnElement="Lane_Browsing" isHorizontal="true">
+        <dc:Bounds x="190" y="60" width="490" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Checkout_di" bpmnElement="Lane_Checkout" isHorizontal="true">
+        <dc:Bounds x="190" y="140" width="490" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Pool_Seller_di" bpmnElement="Pool_Seller" isHorizontal="true">
+        <dc:Bounds x="160" y="260" width="520" height="120"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_B_di" bpmnElement="StartEvent_B">
+        <dc:Bounds x="240" y="82" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_B_di" bpmnElement="EndEvent_B">
+        <dc:Bounds x="600" y="162" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_B1_di" bpmnElement="Flow_B1">
+        <di:waypoint x="276" y="100"/>
+        <di:waypoint x="618" y="180"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Task_S_Receive_di" bpmnElement="Task_S_Receive">
+        <dc:Bounds x="240" y="280" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_S_Ship_di" bpmnElement="Task_S_Ship">
+        <dc:Bounds x="420" y="280" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_S_di" bpmnElement="EndEvent_S">
+        <dc:Bounds x="600" y="302" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_S1_di" bpmnElement="Flow_S1">
+        <di:waypoint x="340" y="320"/>
+        <di:waypoint x="420" y="320"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_S2_di" bpmnElement="Flow_S2">
+        <di:waypoint x="520" y="320"/>
+        <di:waypoint x="600" y="320"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_1_di" bpmnElement="MessageFlow_1">
+        <di:waypoint x="258" y="118"/>
+        <di:waypoint x="258" y="280"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

@@ -12,3 +12,7 @@ publish = false
 bpmn-model = { workspace = true }
 bpmn-scene = { workspace = true }
 kurbo = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+bpmn-xml = { workspace = true }

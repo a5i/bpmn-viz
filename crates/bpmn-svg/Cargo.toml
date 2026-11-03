@@ -9,4 +9,5 @@ description = "Deterministic scene-to-SVG serialization"
 publish = false
 
 [dependencies]
+kurbo = { workspace = true }
 bpmn-scene = { workspace = true }

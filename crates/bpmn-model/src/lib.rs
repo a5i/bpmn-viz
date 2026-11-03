@@ -16,7 +16,6 @@ pub use element::{
     TaskType, TextAnnotation,
 };
 
-
 /// A fully parsed BPMN document: semantics plus Diagram Interchange.
 ///
 /// A fully parsed BPMN document: semantics plus Diagram Interchange.
@@ -58,10 +57,13 @@ impl BpmnDocument {
 
     /// All processes, including those nested in the model root.
     pub fn processes(&self) -> impl Iterator<Item = &Process> {
-        self.definitions.root_elements.iter().filter_map(|root| match root {
-            RootElement::Process(process) => Some(process),
-            RootElement::Collaboration(_) => None,
-        })
+        self.definitions
+            .root_elements
+            .iter()
+            .filter_map(|root| match root {
+                RootElement::Process(process) => Some(process),
+                RootElement::Collaboration(_) => None,
+            })
     }
 
     /// All collaborations.

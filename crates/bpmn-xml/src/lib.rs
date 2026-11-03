@@ -9,7 +9,7 @@ pub mod namespaces;
 pub mod parser;
 
 pub use namespaces::{BPMN_DI, BPMN_MODEL, DC, DI, XSI};
-pub use parser::{from_xml, from_xml_with_options, ParseError, ParseOptions};
+pub use parser::{ParseError, ParseOptions, from_xml, from_xml_with_options};
 
 #[cfg(test)]
 mod tests {

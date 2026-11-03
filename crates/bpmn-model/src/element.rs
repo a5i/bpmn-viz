@@ -97,10 +97,7 @@ impl Process {
     }
 }
 
-fn find_node_in_body<'a>(
-    body: &'a [FlowElement],
-    id: &str,
-) -> Option<&'a FlowNode> {
+fn find_node_in_body<'a>(body: &'a [FlowElement], id: &str) -> Option<&'a FlowNode> {
     body.iter().find_map(|element| match element {
         FlowElement::Node(node) if node.id == id => Some(node),
         FlowElement::Node(FlowNode {
@@ -111,10 +108,7 @@ fn find_node_in_body<'a>(
     })
 }
 
-fn find_flow_in_body<'a>(
-    body: &'a [FlowElement],
-    id: &str,
-) -> Option<&'a SequenceFlow> {
+fn find_flow_in_body<'a>(body: &'a [FlowElement], id: &str) -> Option<&'a SequenceFlow> {
     body.iter().find_map(|element| match element {
         FlowElement::Flow(flow) if flow.id == id => Some(flow),
         FlowElement::Node(FlowNode {
@@ -172,6 +166,8 @@ pub struct FlowNode {
     pub incoming: Vec<String>,
     /// `outgoing` sequence flow references as declared.
     pub outgoing: Vec<String>,
+    /// The `default` attribute: id of the default outgoing sequence flow.
+    pub default_flow_ref: Option<String>,
     /// The symbol kind determining the glyph.
     pub kind: NodeKind,
 }
@@ -377,8 +373,8 @@ pub struct TextAnnotation {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::di::{Diagram, Plane};
     use crate::BpmnDocument;
+    use crate::di::{Diagram, Plane};
 
     fn task(id: &str, name: Option<&str>) -> FlowElement {
         FlowElement::Node(FlowNode {
@@ -386,6 +382,7 @@ mod tests {
             name: name.map(str::to_string),
             incoming: Vec::new(),
             outgoing: Vec::new(),
+            default_flow_ref: None,
             kind: NodeKind::Task {
                 task_type: TaskType::Abstract,
             },
@@ -410,6 +407,7 @@ mod tests {
                     name: None,
                     incoming: Vec::new(),
                     outgoing: Vec::new(),
+                    default_flow_ref: None,
                     kind: NodeKind::SubProcess {
                         triggered_by_event: false,
                         body: vec![task("Inner", None), flow],

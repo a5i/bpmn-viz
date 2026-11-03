@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             id="Defs_Sub" targetNamespace="http://example.test/subprocess">
+  <!-- AC-05: expanded subprocess example -->
+  <process id="Process_Sub" isExecutable="false">
+    <startEvent id="Start_1">
+      <outgoing>Flow_In</outgoing>
+    </startEvent>
+    <subProcess id="Sub_Booking" name="Book trip">
+      <incoming>Flow_In</incoming>
+      <outgoing>Flow_Out</outgoing>
+      <startEvent id="Sub_Start">
+        <outgoing>Sub_Flow_1</outgoing>
+      </startEvent>
+      <task id="Sub_Task_Flight" name="book flight">
+        <incoming>Sub_Flow_1</incoming>
+        <outgoing>Sub_Flow_2</outgoing>
+      </task>
+      <task id="Sub_Task_Hotel" name="book hotel">
+        <incoming>Sub_Flow_2</incoming>
+        <outgoing>Sub_Flow_3</outgoing>
+      </task>
+      <endEvent id="Sub_End">
+        <incoming>Sub_Flow_3</incoming>
+      </endEvent>
+      <sequenceFlow id="Sub_Flow_1" sourceRef="Sub_Start" targetRef="Sub_Task_Flight"/>
+      <sequenceFlow id="Sub_Flow_2" sourceRef="Sub_Task_Flight" targetRef="Sub_Task_Hotel"/>
+      <sequenceFlow id="Sub_Flow_3" sourceRef="Sub_Task_Hotel" targetRef="Sub_End"/>
+    </subProcess>
+    <endEvent id="End_1">
+      <incoming>Flow_Out</incoming>
+    </endEvent>
+    <sequenceFlow id="Flow_In" sourceRef="Start_1" targetRef="Sub_Booking"/>
+    <sequenceFlow id="Flow_Out" sourceRef="Sub_Booking" targetRef="End_1"/>
+  </process>
+  <bpmndi:BPMNDiagram id="Diagram_Sub">
+    <bpmndi:BPMNPlane id="Plane_Sub" bpmnElement="Process_Sub">
+      <bpmndi:BPMNShape id="Start_1_di" bpmnElement="Start_1">
+        <dc:Bounds x="80" y="120" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Sub_Booking_di" bpmnElement="Sub_Booking" isExpanded="true">
+        <dc:Bounds x="170" y="80" width="440" height="150"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="170" y="80" width="440" height="24"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Sub_Start_di" bpmnElement="Sub_Start">
+        <dc:Bounds x="200" y="130" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Sub_Task_Flight_di" bpmnElement="Sub_Task_Flight">
+        <dc:Bounds x="280" y="120" width="100" height="60"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Sub_Task_Hotel_di" bpmnElement="Sub_Task_Hotel">
+        <dc:Bounds x="420" y="120" width="100" height="60"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Sub_End_di" bpmnElement="Sub_End">
+        <dc:Bounds x="550" y="130" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Sub_Flow_1_di" bpmnElement="Sub_Flow_1">
+        <di:waypoint x="236" y="148"/>
+        <di:waypoint x="280" y="150"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Sub_Flow_2_di" bpmnElement="Sub_Flow_2">
+        <di:waypoint x="380" y="150"/>
+        <di:waypoint x="420" y="150"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Sub_Flow_3_di" bpmnElement="Sub_Flow_3">
+        <di:waypoint x="520" y="150"/>
+        <di:waypoint x="550" y="148"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="End_1_di" bpmnElement="End_1">
+        <dc:Bounds x="670" y="120" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_In_di" bpmnElement="Flow_In">
+        <di:waypoint x="116" y="138"/>
+        <di:waypoint x="170" y="150"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Out_di" bpmnElement="Flow_Out">
+        <di:waypoint x="610" y="150"/>
+        <di:waypoint x="670" y="138"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

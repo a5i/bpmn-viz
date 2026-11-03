@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             id="Defs_NoDi" targetNamespace="http://example.test/invalid">
+  <!-- AC-09: no diagram interchange at all; never auto-layout (ADR-0003) -->
+  <process id="Process_NoDi" isExecutable="false">
+    <startEvent id="Start_ND"/>
+    <task id="Task_ND"/>
+    <sequenceFlow id="Flow_ND" sourceRef="Start_ND" targetRef="Task_ND"/>
+  </process>
+</definitions>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE definitions [
+  <!ENTITY xxe SYSTEM "file:///etc/passwd">
+  <!ENTITY a "aaaa">
+]>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             id="Defs_XXE" targetNamespace="http://example.test/malformed">
+  <!-- Security: entity expansion and external entities must never resolve. -->
+  <process id="Process_XXE" isExecutable="false">
+    <task id="Task_XXE" name="&a;&a;&a;&xxe;"/>
+  </process>
+  <bpmndi:BPMNDiagram id="Diagram_XXE">
+    <bpmndi:BPMNPlane id="Plane_XXE" bpmnElement="Process_XXE">
+      <bpmndi:BPMNShape id="Task_XXE_di" bpmnElement="Task_XXE">
+        <dc:Bounds x="0" y="0" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

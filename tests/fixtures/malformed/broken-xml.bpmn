@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             id="Defs_Malformed" targetNamespace="http://example.test/malformed">
+  <process id="Process_Malformed" isExecutable="false">
+    <task id="Task_Broken" name="unterminated
+  </process>
+</definitions>

@@ -8,8 +8,8 @@
 pub mod geometry;
 pub mod reference;
 
-use bpmn_model::diagnostic::{Diagnostic, Severity};
 use bpmn_model::BpmnDocument;
+use bpmn_model::diagnostic::{Diagnostic, Severity};
 
 /// Result of validating one document.
 #[derive(Debug, Clone, Default)]
@@ -51,12 +51,18 @@ impl ValidationReport {
 
     fn sort(&mut self) {
         self.diagnostics.sort_by(|a, b| {
-            (a.severity.as_str(), a.code.as_str(), &a.element_id, &a.message).cmp(&(
-                b.severity.as_str(),
-                b.code.as_str(),
-                &b.element_id,
-                &b.message,
-            ))
+            (
+                a.severity.as_str(),
+                a.code.as_str(),
+                &a.element_id,
+                &a.message,
+            )
+                .cmp(&(
+                    b.severity.as_str(),
+                    b.code.as_str(),
+                    &b.element_id,
+                    &b.message,
+                ))
         });
     }
 }
@@ -87,10 +93,13 @@ mod tests {
   <process id="P"><task id="X"/><task id="X"/></process>
 </definitions>"#,
         );
-        assert!(report
-            .diagnostics
-            .iter()
-            .any(|d| d.code.as_str() == "reference.duplicate_id" && d.element_id.as_deref() == Some("X")));
+        assert!(
+            report
+                .diagnostics
+                .iter()
+                .any(|d| d.code.as_str() == "reference.duplicate_id"
+                    && d.element_id.as_deref() == Some("X"))
+        );
     }
 
     #[test]
@@ -103,11 +112,9 @@ mod tests {
   </process>
 </definitions>"#,
         );
-        assert!(report
-            .diagnostics
-            .iter()
-            .any(|d| d.code.as_str() == "reference.dangling"
-                && d.element_id.as_deref() == Some("F")));
+        assert!(report.diagnostics.iter().any(
+            |d| d.code.as_str() == "reference.dangling" && d.element_id.as_deref() == Some("F")
+        ));
     }
 
     #[test]
@@ -118,11 +125,13 @@ mod tests {
 </definitions>"#,
         );
         assert!(report.has_errors());
-        assert!(report
-            .diagnostics
-            .iter()
-            .any(|d| d.code.as_str() == "reference.dangling"
-                && d.element_id.as_deref() == Some("Pool")));
+        assert!(
+            report
+                .diagnostics
+                .iter()
+                .any(|d| d.code.as_str() == "reference.dangling"
+                    && d.element_id.as_deref() == Some("Pool"))
+        );
     }
 
     #[test]
@@ -132,10 +141,12 @@ mod tests {
   <process id="P"><task id="A"/></process>
 </definitions>"#,
         );
-        assert!(report
-            .diagnostics
-            .iter()
-            .any(|d| d.code.as_str() == "di.missing_interchange"));
+        assert!(
+            report
+                .diagnostics
+                .iter()
+                .any(|d| d.code.as_str() == "di.missing_interchange")
+        );
     }
 
     #[test]
@@ -150,9 +161,19 @@ mod tests {
   </bpmndi:BPMNPlane></bpmndi:BPMNDiagram>
 </definitions>"#,
         );
-        assert!(report.diagnostics.iter().any(|d| d.code.as_str() == "di.missing_shape"
-            && d.element_id.as_deref() == Some("B")));
-        assert!(!report.diagnostics.iter().any(|d| d.element_id.as_deref() == Some("A")));
+        assert!(
+            report
+                .diagnostics
+                .iter()
+                .any(|d| d.code.as_str() == "di.missing_shape"
+                    && d.element_id.as_deref() == Some("B"))
+        );
+        assert!(
+            !report
+                .diagnostics
+                .iter()
+                .any(|d| d.element_id.as_deref() == Some("A"))
+        );
     }
 
     #[test]
@@ -169,8 +190,18 @@ mod tests {
   </bpmndi:BPMNPlane></bpmndi:BPMNDiagram>
 </definitions>"#,
         );
-        assert!(report.diagnostics.iter().any(|d| d.code.as_str() == "geometry.invalid"));
-        assert!(report.diagnostics.iter().any(|d| d.code.as_str() == "di.missing_waypoints"));
+        assert!(
+            report
+                .diagnostics
+                .iter()
+                .any(|d| d.code.as_str() == "geometry.invalid")
+        );
+        assert!(
+            report
+                .diagnostics
+                .iter()
+                .any(|d| d.code.as_str() == "di.missing_waypoints")
+        );
     }
 
     #[test]
@@ -185,11 +216,13 @@ mod tests {
   </bpmndi:BPMNPlane></bpmndi:BPMNDiagram>
 </definitions>"#,
         );
-        assert!(report
-            .diagnostics
-            .iter()
-            .any(|d| d.code.as_str() == "di.dangling_element_ref"
-                && d.element_id.as_deref() == Some("Ghost")));
+        assert!(
+            report
+                .diagnostics
+                .iter()
+                .any(|d| d.code.as_str() == "di.dangling_element_ref"
+                    && d.element_id.as_deref() == Some("Ghost"))
+        );
     }
 
     #[test]
@@ -206,6 +239,11 @@ mod tests {
   </bpmndi:BPMNPlane></bpmndi:BPMNDiagram>
 </definitions>"#,
         );
-        assert!(!report.diagnostics.iter().any(|d| d.element_id.as_deref() == Some("Inner")));
+        assert!(
+            !report
+                .diagnostics
+                .iter()
+                .any(|d| d.element_id.as_deref() == Some("Inner"))
+        );
     }
 }

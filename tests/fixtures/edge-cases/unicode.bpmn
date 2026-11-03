@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             id="Defs_Unicode" targetNamespace="http://example.test/unicode">
+  <!-- AC-08: Unicode labels, escapes, negative and large coordinates -->
+  <process id="Process_U" isExecutable="false">
+    <startEvent id="Start_U" name="Café ☕ — «déjà vu»"/>
+    <task id="Task_U" name="Freigabe &amp; Prüfung &lt;Test&gt;"/>
+    <endEvent id="End_U" name="完了 🎉"/>
+    <sequenceFlow id="Flow_U1" sourceRef="Start_U" targetRef="Task_U" name="wenn &gt; 3"/>
+    <sequenceFlow id="Flow_U2" sourceRef="Task_U" targetRef="End_U"/>
+  </process>
+  <bpmndi:BPMNDiagram id="Diagram_U">
+    <bpmndi:BPMNPlane id="Plane_U" bpmnElement="Process_U">
+      <bpmndi:BPMNShape id="Start_U_di" bpmnElement="Start_U">
+        <dc:Bounds x="-260.5" y="-40" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_U_di" bpmnElement="Task_U">
+        <dc:Bounds x="-120" y="-62" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_U_di" bpmnElement="End_U">
+        <dc:Bounds x="2000" y="-40" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_U1_di" bpmnElement="Flow_U1">
+        <di:waypoint x="-224.5" y="-22"/>
+        <di:waypoint x="-120" y="-22"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_U2_di" bpmnElement="Flow_U2">
+        <di:waypoint x="20" y="-22"/>
+        <di:waypoint x="2000" y="-22"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

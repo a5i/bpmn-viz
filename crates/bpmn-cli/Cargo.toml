@@ -23,3 +23,5 @@ bpmn-scene = { workspace = true }
 clap = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+[dev-dependencies]
+resvg = { workspace = true }

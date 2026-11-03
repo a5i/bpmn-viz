@@ -2,9 +2,9 @@
 
 use std::collections::HashSet;
 
+use bpmn_model::BpmnDocument;
 use bpmn_model::diagnostic::{Diagnostic, DiagnosticCode};
 use bpmn_model::element::{FlowElement, NodeKind};
-use bpmn_model::BpmnDocument;
 
 /// Runs all geometry checks; returns unsorted diagnostics.
 pub fn check_geometry(document: &BpmnDocument) -> Vec<Diagnostic> {
@@ -42,16 +42,16 @@ pub fn check_geometry(document: &BpmnDocument) -> Vec<Diagnostic> {
                     .with_element_id(shape.bpmn_element.clone()),
                 );
             }
-            if let Some(label_bounds) = shape.label.and_then(|label| label.bounds) {
-                if !label_bounds.is_valid() {
-                    diagnostics.push(
-                        Diagnostic::error(
-                            DiagnosticCode::InvalidGeometry,
-                            "BPMNShape label bounds must be finite with positive size",
-                        )
-                        .with_element_id(shape.bpmn_element.clone()),
-                    );
-                }
+            if let Some(label_bounds) = shape.label.and_then(|label| label.bounds)
+                && !label_bounds.is_valid()
+            {
+                diagnostics.push(
+                    Diagnostic::error(
+                        DiagnosticCode::InvalidGeometry,
+                        "BPMNShape label bounds must be finite with positive size",
+                    )
+                    .with_element_id(shape.bpmn_element.clone()),
+                );
             }
         }
         for edge in &diagram.plane.edges {
@@ -79,16 +79,16 @@ pub fn check_geometry(document: &BpmnDocument) -> Vec<Diagnostic> {
                     break;
                 }
             }
-            if let Some(label_bounds) = edge.label.and_then(|label| label.bounds) {
-                if !label_bounds.is_valid() {
-                    diagnostics.push(
-                        Diagnostic::error(
-                            DiagnosticCode::InvalidGeometry,
-                            "BPMNEdge label bounds must be finite with positive size",
-                        )
-                        .with_element_id(edge.bpmn_element.clone()),
-                    );
-                }
+            if let Some(label_bounds) = edge.label.and_then(|label| label.bounds)
+                && !label_bounds.is_valid()
+            {
+                diagnostics.push(
+                    Diagnostic::error(
+                        DiagnosticCode::InvalidGeometry,
+                        "BPMNEdge label bounds must be finite with positive size",
+                    )
+                    .with_element_id(edge.bpmn_element.clone()),
+                );
             }
         }
     }
@@ -188,17 +188,17 @@ fn check_coverage_body(
                 if !shaped.contains(node.id.as_str()) {
                     missing_shapes.push((node.id.clone(), "flow node"));
                 }
-                if let NodeKind::SubProcess { body, .. } = &node.kind {
-                    if !collapsed.contains(node.id.as_str()) {
-                        check_coverage_body(
-                            body,
-                            collapsed,
-                            shaped,
-                            has_edge,
-                            missing_shapes,
-                            missing_edges,
-                        );
-                    }
+                if let NodeKind::SubProcess { body, .. } = &node.kind
+                    && !collapsed.contains(node.id.as_str())
+                {
+                    check_coverage_body(
+                        body,
+                        collapsed,
+                        shaped,
+                        has_edge,
+                        missing_shapes,
+                        missing_edges,
+                    );
                 }
             }
             FlowElement::Flow(flow) => {
