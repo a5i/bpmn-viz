@@ -16,7 +16,7 @@ status: active
 
 ```sh
 cargo build --workspace
-cargo test --workspace            # 18 suites, self-contained fixtures
+cargo test --workspace            # 26 suites incl. bpmn-layout, self-contained fixtures
 cargo fmt --all -- --check
 cargo clippy --workspace --all-targets -- -D warnings
 cargo bench -p bpmn-cli --bench render   # performance baseline (REPORT-001)

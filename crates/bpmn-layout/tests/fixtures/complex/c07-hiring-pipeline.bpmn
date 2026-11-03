@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Complex example 7: three start events converging into one screening funnel. Project-owned (MIT). -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             id="definitions_c07" targetNamespace="http://bpmn-viz.test/complex">
+  <process id="process_c07">
+    <startEvent id="c07_start_ref" name="Referral received"/>
+    <startEvent id="c07_start_portal" name="Application via portal"/>
+    <startEvent id="c07_start_sourced" name="Sourced by recruiter"/>
+    <task id="c07_review" name="Review resume"/>
+    <exclusiveGateway id="c07_fit" name="Candidate fits role?"/>
+    <task id="c07_reject" name="Send regret note"/>
+    <parallelGateway id="c07_fork" name="Interview fork"/>
+    <task id="c07_phone" name="Phone interview"/>
+    <task id="c07_onsite" name="Onsite interview loop"/>
+    <parallelGateway id="c07_join" name="Interview join"/>
+    <task id="c07_offer" name="Prepare offer"/>
+    <exclusiveGateway id="c07_accept" name="Offer accepted?"/>
+    <task id="c07_onboard" name="Start onboarding"/>
+    <endEvent id="c07_end_hired" name="Hired"/>
+    <endEvent id="c07_end_declined" name="Offer declined"/>
+    <endEvent id="c07_end_rejected" name="Candidate rejected"/>
+    <sequenceFlow id="c07_f01" sourceRef="c07_start_ref" targetRef="c07_review"/>
+    <sequenceFlow id="c07_f02" sourceRef="c07_start_portal" targetRef="c07_review"/>
+    <sequenceFlow id="c07_f03" sourceRef="c07_start_sourced" targetRef="c07_review"/>
+    <sequenceFlow id="c07_f04" sourceRef="c07_review" targetRef="c07_fit"/>
+    <sequenceFlow id="c07_f05" sourceRef="c07_fit" targetRef="c07_fork"/>
+    <sequenceFlow id="c07_f06" sourceRef="c07_fit" targetRef="c07_reject"/>
+    <sequenceFlow id="c07_f07" sourceRef="c07_reject" targetRef="c07_end_rejected"/>
+    <sequenceFlow id="c07_f08" sourceRef="c07_fork" targetRef="c07_phone"/>
+    <sequenceFlow id="c07_f09" sourceRef="c07_fork" targetRef="c07_onsite"/>
+    <sequenceFlow id="c07_f10" sourceRef="c07_phone" targetRef="c07_join"/>
+    <sequenceFlow id="c07_f11" sourceRef="c07_onsite" targetRef="c07_join"/>
+    <sequenceFlow id="c07_f12" sourceRef="c07_join" targetRef="c07_offer"/>
+    <sequenceFlow id="c07_f13" sourceRef="c07_offer" targetRef="c07_accept"/>
+    <sequenceFlow id="c07_f14" sourceRef="c07_accept" targetRef="c07_onboard"/>
+    <sequenceFlow id="c07_f15" sourceRef="c07_onboard" targetRef="c07_end_hired"/>
+    <sequenceFlow id="c07_f16" sourceRef="c07_accept" targetRef="c07_end_declined"/>
+  </process>
+</definitions>

@@ -40,7 +40,7 @@ External pinned fixtures (CC-BY-3.0, not committed): seven BPMN MIWG cases in gi
 
 - `cargo fmt --all -- --check` clean.
 - `cargo clippy --workspace --all-targets -- -D warnings` clean.
-- `cargo test --workspace` green (18 suites, 90+ tests).
+- `cargo test --workspace` green (prototype suites as listed above; the `bpmn-layout` suites are governed by [TEST-005](TEST-005-layout-test-plan.md)).
 - `docvera check` exits 0 with 0 diagnostics.
 - `cargo deny check` and `cargo audit` pass locally.
 - MIWG smoke: 0 validation errors on the pinned set.

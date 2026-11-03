@@ -1,0 +1,143 @@
+{
+  "edges": [
+    {
+      "bpmnElement": "xor_f1",
+      "waypoints": [
+        [
+          116.0,
+          120.0
+        ],
+        [
+          216.0,
+          120.0
+        ]
+      ]
+    },
+    {
+      "bpmnElement": "xor_f2",
+      "waypoints": [
+        [
+          266.0,
+          120.0
+        ],
+        [
+          366.0,
+          120.0
+        ]
+      ]
+    },
+    {
+      "bpmnElement": "xor_f3",
+      "waypoints": [
+        [
+          266.0,
+          120.0
+        ],
+        [
+          316.0,
+          120.0
+        ],
+        [
+          316.0,
+          280.0
+        ],
+        [
+          366.0,
+          280.0
+        ]
+      ]
+    },
+    {
+      "bpmnElement": "xor_f4",
+      "waypoints": [
+        [
+          466.0,
+          120.0
+        ],
+        [
+          566.0,
+          120.0
+        ]
+      ]
+    },
+    {
+      "bpmnElement": "xor_f5",
+      "waypoints": [
+        [
+          466.0,
+          280.0
+        ],
+        [
+          516.0,
+          280.0
+        ],
+        [
+          516.0,
+          120.0
+        ],
+        [
+          566.0,
+          120.0
+        ]
+      ]
+    },
+    {
+      "bpmnElement": "xor_f6",
+      "waypoints": [
+        [
+          616.0,
+          120.0
+        ],
+        [
+          716.0,
+          120.0
+        ]
+      ]
+    }
+  ],
+  "shapes": [
+    {
+      "bpmnElement": "xor_cancel",
+      "height": 80.0,
+      "width": 100.0,
+      "x": 366.0,
+      "y": 240.0
+    },
+    {
+      "bpmnElement": "xor_end",
+      "height": 36.0,
+      "width": 36.0,
+      "x": 716.0,
+      "y": 102.0
+    },
+    {
+      "bpmnElement": "xor_join",
+      "height": 50.0,
+      "width": 50.0,
+      "x": 566.0,
+      "y": 95.0
+    },
+    {
+      "bpmnElement": "xor_ship",
+      "height": 80.0,
+      "width": 100.0,
+      "x": 366.0,
+      "y": 80.0
+    },
+    {
+      "bpmnElement": "xor_split",
+      "height": 50.0,
+      "width": 50.0,
+      "x": 216.0,
+      "y": 95.0
+    },
+    {
+      "bpmnElement": "xor_start",
+      "height": 36.0,
+      "width": 36.0,
+      "x": 80.0,
+      "y": 102.0
+    }
+  ],
+  "warnings": []
+}

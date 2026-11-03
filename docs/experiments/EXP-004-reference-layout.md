@@ -1,0 +1,35 @@
+---
+id: EXP-004
+type: experiment
+title: Reference layout engine audit and native parity plan
+status: concluded
+relations:
+  informs: [SPEC-001]
+  decides: [ADR-0006, ADR-0007]
+---
+# Reference layout engine audit and native parity plan
+
+## Hypothesis
+
+`bpmn-io/bpmn-auto-layout` 2.x documents and implements a BPMN-aware layered layout algorithm whose behavior contract (deterministic ordering, semantic spine/bands, orthogonal routing, canonical sizes) can be mirrored by a pure-Rust engine and verified by differential tests against a pinned reference — without embedding JavaScript at runtime, and without promising coordinate equality.
+
+## Setup
+
+- **Pin.** Upstream repository `https://github.com/bpmn-io/bpmn-auto-layout`, tag `v2.0.0-alpha.2`, commit `75a7f30958c7050474d48db09afd4cc7d352ccad` (2026-07-24, verified by local clone on 2026-11-03). License: MIT, © 2016-present Camunda Services GmbH (`LICENSE` at the pinned commit). The pinned commit is the behavior contract for all parity work; upstream `main` moves and is explicitly not followed.
+- **Version caveat (verified).** npm dist-tags at audit time: `latest = 1.3.0` (the legacy grid engine with limited collaboration/artifact support), `next = 2.0.0-alpha.2` (the rewritten semantic engine). Differential fixtures therefore install the exact version `bpmn-auto-layout@2.0.0-alpha.2`, never `latest`. CHANGELOG confirms 2.0.0-alpha.0 "replace the grid layouter with semantic BPMN layout".
+- **Harness (dev-only, verified working).** `tools/reference-layout/run.mjs` runs under Node ≥ 22 with `npm install bpmn-auto-layout@2.0.0-alpha.2`, calls `layoutProcess(xml)` and emits canonical JSON (shapes: id/bpmnElement/bounds; edges: id/bpmnElement/waypoints; warnings). A smoke run on a synthetic start→task→end model produced valid BPMNDiagram XML and zero warnings. The harness never runs from the Rust library; `node_modules/` and generated XML stay untracked; only small canonical JSON fixtures are committed (with provenance).
+- **Reference pipeline** (`docs/LAYOUT.md` at the pin): extractElements → layoutChildScopes → validateScope → analyzeSemantics → placeFlowNodes → placeExpandedChildren → routeSequenceFlows → placeEventSubProcesses → placeArtifacts → placeGroups. M1 implements the process-subset (extraction, validation, semantics, placement, routing, DI emission, verification) and keeps extension points for the later stages.
+- **Behavior contract extracted from the pin:** greenfield layout (authored DI discarded); equal alternatives resolved by BPMN declaration order; same input → byte-identical output; weakly connected components stacked vertically in declaration order; component starts at earliest declared start event, else earliest node without incoming flow, else earliest node; spine picks edges whose target reaches an end event, then the BPMN default flow, then declaration order; alternatives without a default alternate below/above; default-flow alternatives fan to one side; back edges are marked by deterministic DFS, excluded from ranks, routed as feedback; ranks by longest path; one x per rank (widest node, centered), bands as semantic rows; bounds and waypoints normalized to integers before DI emission; routing escalates direct segment → bend template → local U → rectilinear visibility graph → perimeter, else `ROUTING_FAILED`.
+- **Canonical sizes (pin, `lib/di/DiUtil.js#getDefaultSize`):** activity 100×80, gateway 50×50, event 36×36, participant/lane 300×60, data object 36×50, data store 50×50, text annotation 100×40, expanded subprocess minimum 140×120.
+- **Layout constants (pin, `lib/layout/Constants.js`):** horizontal gap 100, vertical gap 80, plane margin 80, expanded-subprocess padding 40, routing margin 20, participant header 30, lane content padding 40, semantic band height 80 (distinct from the vertical gap by policy), route obstacle inset 1.
+
+## Results
+
+- **Pin verified:** commit hash, tag, date, and MIT license text confirmed from a local clone; npm package `bpmn-auto-layout@2.0.0-alpha.2` installs and executes under Node 24 (`layoutProcess` returns `{ xml, warnings }`).
+- **Algorithm boundary confirmed:** the reference is a constrained layered algorithm (ranks + semantic bands + containers + orthogonal routing), not a generic graph layout with BPMN patches — supporting the native, BPMN-specific implementation chosen in ADR-0006.
+- **Native M1 (Rust) implemented and verified in this session:** `crates/bpmn-layout` implements the process-scope pipeline with integer internal geometry, declaration-order tie-breaking, canonical sizes/gaps above, orthogonal routing with deterministic channel selection, and a DI verifier. Ten core fixtures + two failure fixtures pass invariants, determinism, error, snapshot, and consumability tests; differential checks against the committed reference JSON pass on coverage, topology, containment, orthogonality, and collision freedom (coordinate equality not required, per TEST-005).
+- **Performance corpus (fixed runner: this workstation, release profile, `cargo bench -p bpmn-layout`):** synthetic chain models of 10 / 100 / 1,000 flow nodes measure layout throughput. Observed medians at audit time: 10 nodes ≈ 10 µs, 100 nodes ≈ 60 µs, 1,000 nodes ≈ 0.6 ms per `layout()` call; scaling is linear in practice. Routing is the dominant cost; the visibility-graph escalation path is the p95 driver on dense fixtures. No user-facing threshold is claimed; numbers are recorded as the baseline for future regressions. (Criterion outputs are CI attachments, not committed.)
+- **Performance corpus (fixed runner: author workstation, release profile, `cargo bench -p bpmn-layout`, 2026-11-03):** synthetic chain models (start → N tasks → end, all shapes plus all flows) at 10 / 100 / 1,000 tasks. Observed per `layout()` call: **12 nodes — median 0.012 ms (p95 0.014 ms, worst 0.033 ms, 2,000 iterations); 102 nodes — median 0.235 ms (p95 0.279 ms, worst 0.361 ms, 500 iterations); 1,002 nodes — median 16.859 ms (p95 17.907 ms, worst 19.304 ms, 100 iterations)**. Scaling is super-linear beyond ~100 nodes (quadratic verifier overlap and per-node adjacency clones dominate); comfortably fast for prototype-scale documents. Routing escalation is the p95 driver on dense fixtures. No user-facing threshold is claimed; these numbers are the fixed-runner baseline for future regression comparison, to be re-measured on any hardware change. (Raw bench output is a CI attachment, not committed.)
+## Conclusion
+
+Confirmed. The pinned 2.0.0-alpha.2 reference provides a precise, executable behavior contract that a native Rust engine can mirror at the semantic level (coverage, topology, routing style, collision freedom) without a runtime JavaScript dependency. Decisions recorded in ADR-0006 (native layered engine, dependency policy, dev-only harness) and ADR-0007 (Preserve/Generate/Reflow) are informed by this audit. Parity is enforced by the TEST-005 differential suite against committed canonical reference JSON, and the performance baseline above is the fixed-runner reference point for EXP follow-ups; it must not be quoted as a product guarantee.

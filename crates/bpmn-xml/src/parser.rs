@@ -838,13 +838,28 @@ impl<'a> Parser<'a> {
         };
         let node_name = name.local.clone();
         let default_flow_ref = attr_value(&attrs, "default");
+        let empty_kind = |node_name: &str| -> NodeKind {
+            if node_name == "boundaryEvent" {
+                // Self-closing boundary events must not degrade to
+                // `NodeKind::Other`; regression-tested in this module.
+                NodeKind::BoundaryEvent {
+                    attached_to: attr_value(&attrs, "attachedToRef"),
+                    cancel_activity: attr_value(&attrs, "cancelActivity")
+                        .map(|value| value != "false")
+                        .unwrap_or(true),
+                    definition: EventDefinition::None,
+                }
+            } else {
+                kind_from_name(node_name, xsi_type.as_deref())
+            }
+        };
         let (content, kind) = if empty {
             (
                 NodeContent {
                     default_flow_ref: default_flow_ref.clone(),
                     ..NodeContent::default()
                 },
-                kind_from_name(&node_name, xsi_type.as_deref()),
+                empty_kind(&node_name),
             )
         } else if node_name == "subProcess" {
             let triggered_by_event =
@@ -1874,6 +1889,36 @@ mod tests {
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>
 "#;
+
+    #[test]
+    fn parses_self_closing_boundary_event_as_boundary_event() {
+        // Regression: a self-closing `<boundaryEvent/>` used to degrade to
+        // `NodeKind::Other`, so attached boundary events lost their kind (and
+        // layout warnings mislabeled them as unsupported elements).
+        let document = from_xml(
+            br#"<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL">
+  <process id="P">
+    <task id="Host"/>
+    <boundaryEvent id="Err" attachedToRef="Host"/>
+  </process>
+</definitions>
+"#,
+        )
+        .expect("parse");
+        let node = document.find_node("Err").expect("boundary event present");
+        match &node.kind {
+            NodeKind::BoundaryEvent {
+                attached_to,
+                cancel_activity,
+                definition,
+            } => {
+                assert_eq!(attached_to.as_deref(), Some("Host"));
+                assert!(*cancel_activity);
+                assert_eq!(*definition, EventDefinition::None);
+            }
+            other => panic!("expected BoundaryEvent, got {other:?}"),
+        }
+    }
 
     #[test]
     fn parses_minimal_document_with_prefixed_names() {

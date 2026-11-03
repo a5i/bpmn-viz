@@ -1,0 +1,74 @@
+{
+  "edges": [
+    {
+      "bpmnElement": "rev_f1",
+      "waypoints": [
+        [
+          116.0,
+          120.0
+        ],
+        [
+          216.0,
+          120.0
+        ]
+      ]
+    },
+    {
+      "bpmnElement": "rev_f2",
+      "waypoints": [
+        [
+          316.0,
+          120.0
+        ],
+        [
+          416.0,
+          120.0
+        ]
+      ]
+    },
+    {
+      "bpmnElement": "rev_f3",
+      "waypoints": [
+        [
+          516.0,
+          120.0
+        ],
+        [
+          616.0,
+          120.0
+        ]
+      ]
+    }
+  ],
+  "shapes": [
+    {
+      "bpmnElement": "rev_archive",
+      "height": 80.0,
+      "width": 100.0,
+      "x": 416.0,
+      "y": 80.0
+    },
+    {
+      "bpmnElement": "rev_end",
+      "height": 36.0,
+      "width": 36.0,
+      "x": 616.0,
+      "y": 102.0
+    },
+    {
+      "bpmnElement": "rev_review",
+      "height": 80.0,
+      "width": 100.0,
+      "x": 216.0,
+      "y": 80.0
+    },
+    {
+      "bpmnElement": "rev_start",
+      "height": 36.0,
+      "width": 36.0,
+      "x": 80.0,
+      "y": 102.0
+    }
+  ],
+  "warnings": []
+}

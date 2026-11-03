@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Complex example 6: four parallel test suites, triage loop, staged deployment and rollback. Project-owned (MIT). -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             id="definitions_c06" targetNamespace="http://bpmn-viz.test/complex">
+  <process id="process_c06">
+    <startEvent id="c06_start" name="Release candidate ready"/>
+    <parallelGateway id="c06_fork" name="Run test suites"/>
+    <task id="c06_unit" name="Run unit tests"/>
+    <task id="c06_integration" name="Run integration tests"/>
+    <task id="c06_e2e" name="Run end-to-end tests"/>
+    <task id="c06_perf" name="Run performance tests"/>
+    <parallelGateway id="c06_join" name="Suites finished"/>
+    <exclusiveGateway id="c06_green" name="All tests green?"/>
+    <task id="c06_triage" name="Triage failures"/>
+    <task id="c06_staging" name="Deploy to staging"/>
+    <task id="c06_smoke" name="Run smoke tests"/>
+    <exclusiveGateway id="c06_smokeok" name="Smoke tests pass?"/>
+    <task id="c06_rollback" name="Roll back release"/>
+    <task id="c06_promote" name="Promote to production"/>
+    <parallelGateway id="c06_notif_fork" name="Announce fork"/>
+    <task id="c06_changelog" name="Publish changelog"/>
+    <task id="c06_announce" name="Announce release"/>
+    <parallelGateway id="c06_notif_join" name="Announce join"/>
+    <endEvent id="c06_end_live" name="Release live"/>
+    <endEvent id="c06_end_abort" name="Release aborted"/>
+    <sequenceFlow id="c06_f01" sourceRef="c06_start" targetRef="c06_fork"/>
+    <sequenceFlow id="c06_f02" sourceRef="c06_fork" targetRef="c06_unit"/>
+    <sequenceFlow id="c06_f03" sourceRef="c06_fork" targetRef="c06_integration"/>
+    <sequenceFlow id="c06_f04" sourceRef="c06_fork" targetRef="c06_e2e"/>
+    <sequenceFlow id="c06_f05" sourceRef="c06_fork" targetRef="c06_perf"/>
+    <sequenceFlow id="c06_f06" sourceRef="c06_unit" targetRef="c06_join"/>
+    <sequenceFlow id="c06_f07" sourceRef="c06_integration" targetRef="c06_join"/>
+    <sequenceFlow id="c06_f08" sourceRef="c06_e2e" targetRef="c06_join"/>
+    <sequenceFlow id="c06_f09" sourceRef="c06_perf" targetRef="c06_join"/>
+    <sequenceFlow id="c06_f10" sourceRef="c06_join" targetRef="c06_green"/>
+    <sequenceFlow id="c06_f11" sourceRef="c06_green" targetRef="c06_triage"/>
+    <sequenceFlow id="c06_f12" sourceRef="c06_triage" targetRef="c06_fork"/>
+    <sequenceFlow id="c06_f13" sourceRef="c06_green" targetRef="c06_staging"/>
+    <sequenceFlow id="c06_f14" sourceRef="c06_staging" targetRef="c06_smoke"/>
+    <sequenceFlow id="c06_f15" sourceRef="c06_smoke" targetRef="c06_smokeok"/>
+    <sequenceFlow id="c06_f16" sourceRef="c06_smokeok" targetRef="c06_rollback"/>
+    <sequenceFlow id="c06_f17" sourceRef="c06_rollback" targetRef="c06_end_abort"/>
+    <sequenceFlow id="c06_f18" sourceRef="c06_smokeok" targetRef="c06_promote"/>
+    <sequenceFlow id="c06_f19" sourceRef="c06_promote" targetRef="c06_notif_fork"/>
+    <sequenceFlow id="c06_f20" sourceRef="c06_notif_fork" targetRef="c06_changelog"/>
+    <sequenceFlow id="c06_f21" sourceRef="c06_notif_fork" targetRef="c06_announce"/>
+    <sequenceFlow id="c06_f22" sourceRef="c06_changelog" targetRef="c06_notif_join"/>
+    <sequenceFlow id="c06_f23" sourceRef="c06_announce" targetRef="c06_notif_join"/>
+    <sequenceFlow id="c06_f24" sourceRef="c06_notif_join" targetRef="c06_end_live"/>
+  </process>
+</definitions>

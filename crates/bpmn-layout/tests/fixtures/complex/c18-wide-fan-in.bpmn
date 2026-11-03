@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Complex example 18: eight intake channels with pre-processing tasks fanning into one triage. Project-owned (MIT). -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             id="definitions_c18" targetNamespace="http://bpmn-viz.test/complex">
+  <process id="process_c18">
+    <startEvent id="c18_s_web" name="Web form"/>
+    <startEvent id="c18_s_email" name="Email"/>
+    <startEvent id="c18_s_phone" name="Phone call"/>
+    <startEvent id="c18_s_chat" name="Live chat"/>
+    <startEvent id="c18_s_social" name="Social media"/>
+    <startEvent id="c18_s_desk" name="Front desk"/>
+    <startEvent id="c18_s_partner" name="Partner portal"/>
+    <startEvent id="c18_s_api" name="API integration"/>
+    <task id="c18_t_web" name="Log web ticket"/>
+    <task id="c18_t_email" name="Log email ticket"/>
+    <task id="c18_t_phone" name="Log phone ticket"/>
+    <task id="c18_t_chat" name="Log chat ticket"/>
+    <task id="c18_t_social" name="Log social ticket"/>
+    <task id="c18_t_desk" name="Log desk ticket"/>
+    <task id="c18_t_partner" name="Log partner ticket"/>
+    <task id="c18_t_api" name="Log API ticket"/>
+    <exclusiveGateway id="c18_triage" name="Triage intake"/>
+    <exclusiveGateway id="c18_class" name="Ticket category?"/>
+    <task id="c18_billing" name="Route to billing queue"/>
+    <task id="c18_technical" name="Route to technical queue"/>
+    <task id="c18_sales" name="Route to sales queue"/>
+    <task id="c18_general" name="Route to general queue"/>
+    <endEvent id="c18_e_billing" name="Billing handled"/>
+    <endEvent id="c18_e_technical" name="Technical handled"/>
+    <endEvent id="c18_e_sales" name="Sales handled"/>
+    <endEvent id="c18_e_general" name="General handled"/>
+    <sequenceFlow id="c18_f01" sourceRef="c18_s_web" targetRef="c18_t_web"/>
+    <sequenceFlow id="c18_f02" sourceRef="c18_s_email" targetRef="c18_t_email"/>
+    <sequenceFlow id="c18_f03" sourceRef="c18_s_phone" targetRef="c18_t_phone"/>
+    <sequenceFlow id="c18_f04" sourceRef="c18_s_chat" targetRef="c18_t_chat"/>
+    <sequenceFlow id="c18_f05" sourceRef="c18_s_social" targetRef="c18_t_social"/>
+    <sequenceFlow id="c18_f06" sourceRef="c18_s_desk" targetRef="c18_t_desk"/>
+    <sequenceFlow id="c18_f07" sourceRef="c18_s_partner" targetRef="c18_t_partner"/>
+    <sequenceFlow id="c18_f08" sourceRef="c18_s_api" targetRef="c18_t_api"/>
+    <sequenceFlow id="c18_f09" sourceRef="c18_t_web" targetRef="c18_triage"/>
+    <sequenceFlow id="c18_f10" sourceRef="c18_t_email" targetRef="c18_triage"/>
+    <sequenceFlow id="c18_f11" sourceRef="c18_t_phone" targetRef="c18_triage"/>
+    <sequenceFlow id="c18_f12" sourceRef="c18_t_chat" targetRef="c18_triage"/>
+    <sequenceFlow id="c18_f13" sourceRef="c18_t_social" targetRef="c18_triage"/>
+    <sequenceFlow id="c18_f14" sourceRef="c18_t_desk" targetRef="c18_triage"/>
+    <sequenceFlow id="c18_f15" sourceRef="c18_t_partner" targetRef="c18_triage"/>
+    <sequenceFlow id="c18_f16" sourceRef="c18_t_api" targetRef="c18_triage"/>
+    <sequenceFlow id="c18_f17" sourceRef="c18_triage" targetRef="c18_class"/>
+    <sequenceFlow id="c18_f18" sourceRef="c18_class" targetRef="c18_billing"/>
+    <sequenceFlow id="c18_f19" sourceRef="c18_class" targetRef="c18_technical"/>
+    <sequenceFlow id="c18_f20" sourceRef="c18_class" targetRef="c18_sales"/>
+    <sequenceFlow id="c18_f21" sourceRef="c18_class" targetRef="c18_general"/>
+    <sequenceFlow id="c18_f22" sourceRef="c18_billing" targetRef="c18_e_billing"/>
+    <sequenceFlow id="c18_f23" sourceRef="c18_technical" targetRef="c18_e_technical"/>
+    <sequenceFlow id="c18_f24" sourceRef="c18_sales" targetRef="c18_e_sales"/>
+    <sequenceFlow id="c18_f25" sourceRef="c18_general" targetRef="c18_e_general"/>
+  </process>
+</definitions>

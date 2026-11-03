@@ -1,0 +1,101 @@
+{
+  "edges": [
+    {
+      "bpmnElement": "ms_f1",
+      "waypoints": [
+        [
+          116.0,
+          120.0
+        ],
+        [
+          216.0,
+          120.0
+        ]
+      ]
+    },
+    {
+      "bpmnElement": "ms_f2",
+      "waypoints": [
+        [
+          316.0,
+          120.0
+        ],
+        [
+          416.0,
+          120.0
+        ]
+      ]
+    },
+    {
+      "bpmnElement": "ms_f3",
+      "waypoints": [
+        [
+          116.0,
+          240.0
+        ],
+        [
+          216.0,
+          240.0
+        ]
+      ]
+    },
+    {
+      "bpmnElement": "ms_f4",
+      "waypoints": [
+        [
+          316.0,
+          240.0
+        ],
+        [
+          416.0,
+          240.0
+        ]
+      ]
+    }
+  ],
+  "shapes": [
+    {
+      "bpmnElement": "ms_end_a",
+      "height": 36.0,
+      "width": 36.0,
+      "x": 416.0,
+      "y": 102.0
+    },
+    {
+      "bpmnElement": "ms_end_b",
+      "height": 36.0,
+      "width": 36.0,
+      "x": 416.0,
+      "y": 222.0
+    },
+    {
+      "bpmnElement": "ms_start_a",
+      "height": 36.0,
+      "width": 36.0,
+      "x": 80.0,
+      "y": 102.0
+    },
+    {
+      "bpmnElement": "ms_start_b",
+      "height": 36.0,
+      "width": 36.0,
+      "x": 80.0,
+      "y": 222.0
+    },
+    {
+      "bpmnElement": "ms_task_a",
+      "height": 80.0,
+      "width": 100.0,
+      "x": 216.0,
+      "y": 80.0
+    },
+    {
+      "bpmnElement": "ms_task_b",
+      "height": 80.0,
+      "width": 100.0,
+      "x": 216.0,
+      "y": 200.0
+    }
+  ],
+  "warnings": []
+}

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Complex example 19: tiered escalation with several converge points and a queue return back edge. Project-owned (MIT). -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             id="definitions_c19" targetNamespace="http://bpmn-viz.test/complex">
+  <process id="process_c19">
+    <startEvent id="c19_start" name="Ticket created"/>
+    <task id="c19_l1" name="Level 1 diagnosis"/>
+    <exclusiveGateway id="c19_res_l1" name="Resolved at level 1?"/>
+    <task id="c19_l2" name="Level 2 escalation"/>
+    <exclusiveGateway id="c19_res_l2" name="Resolved at level 2?"/>
+    <task id="c19_l3" name="Level 3 engineering"/>
+    <exclusiveGateway id="c19_res_l3" name="Resolved at level 3?"/>
+    <task id="c19_wontfix" name="Mark as wont-fix"/>
+    <task id="c19_confirm" name="Confirm resolution with customer"/>
+    <endEvent id="c19_end_done" name="Ticket closed"/>
+    <endEvent id="c19_end_wont" name="Closed as wont-fix"/>
+    <sequenceFlow id="c19_f01" sourceRef="c19_start" targetRef="c19_l1"/>
+    <sequenceFlow id="c19_f02" sourceRef="c19_l1" targetRef="c19_res_l1"/>
+    <sequenceFlow id="c19_f03" sourceRef="c19_res_l1" targetRef="c19_confirm"/>
+    <sequenceFlow id="c19_f04" sourceRef="c19_res_l1" targetRef="c19_l2"/>
+    <sequenceFlow id="c19_f05" sourceRef="c19_l2" targetRef="c19_res_l2"/>
+    <sequenceFlow id="c19_f06" sourceRef="c19_res_l2" targetRef="c19_confirm"/>
+    <sequenceFlow id="c19_f07" sourceRef="c19_res_l2" targetRef="c19_l3"/>
+    <sequenceFlow id="c19_f08" sourceRef="c19_l3" targetRef="c19_res_l3"/>
+    <sequenceFlow id="c19_f09" sourceRef="c19_res_l3" targetRef="c19_confirm"/>
+    <sequenceFlow id="c19_f10" sourceRef="c19_res_l3" targetRef="c19_wontfix"/>
+    <sequenceFlow id="c19_f11" sourceRef="c19_wontfix" targetRef="c19_end_wont"/>
+    <sequenceFlow id="c19_f12" sourceRef="c19_confirm" targetRef="c19_end_done"/>
+    <sequenceFlow id="c19_f13" sourceRef="c19_res_l3" targetRef="c19_l1"/>
+  </process>
+</definitions>

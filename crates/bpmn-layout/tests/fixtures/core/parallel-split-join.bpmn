@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Fixture 3 (TEST-005): parallel fan-out/fan-in, orthogonal docking on branch rows. Project-owned (MIT). -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             id="definitions_3" targetNamespace="http://bpmn-viz.test/layout">
+  <process id="process_parallel">
+    <startEvent id="par_start" name="Payment received"/>
+    <parallelGateway id="par_split" name="Fork"/>
+    <task id="par_check_stock" name="Check stock"/>
+    <task id="par_charge" name="Charge card"/>
+    <parallelGateway id="par_join" name="Join"/>
+    <endEvent id="par_end" name="Fulfilled"/>
+    <sequenceFlow id="par_f1" sourceRef="par_start" targetRef="par_split"/>
+    <sequenceFlow id="par_f2" sourceRef="par_split" targetRef="par_check_stock"/>
+    <sequenceFlow id="par_f3" sourceRef="par_split" targetRef="par_charge"/>
+    <sequenceFlow id="par_f4" sourceRef="par_check_stock" targetRef="par_join"/>
+    <sequenceFlow id="par_f5" sourceRef="par_charge" targetRef="par_join"/>
+    <sequenceFlow id="par_f6" sourceRef="par_join" targetRef="par_end"/>
+  </process>
+</definitions>

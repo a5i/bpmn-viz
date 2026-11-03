@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Fixture 9 (TEST-005, negative): sequence flow references an endpoint that exists nowhere.
+     Expected: structured `layout.missing_endpoint`, no panic. Project-owned (MIT). -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             id="definitions_9" targetNamespace="http://bpmn-viz.test/layout">
+  <process id="process_invalid">
+    <startEvent id="bad_start" name="Start"/>
+    <endEvent id="bad_end" name="End"/>
+    <sequenceFlow id="bad_f1" sourceRef="bad_start" targetRef="ghost_task"/>
+  </process>
+</definitions>

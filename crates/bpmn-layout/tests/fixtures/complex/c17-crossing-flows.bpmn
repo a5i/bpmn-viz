@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Complex example 17: two stage rows with dense cross links that must route between bands. Project-owned (MIT). -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             id="definitions_c17" targetNamespace="http://bpmn-viz.test/complex">
+  <process id="process_c17">
+    <startEvent id="c17_start" name="Case opened"/>
+    <parallelGateway id="c17_fork" name="Track fork"/>
+    <task id="c17_top1" name="Track A stage 1"/>
+    <task id="c17_top2" name="Track A stage 2"/>
+    <task id="c17_top3" name="Track A stage 3"/>
+    <task id="c17_top4" name="Track A stage 4"/>
+    <task id="c17_bot1" name="Track B stage 1"/>
+    <task id="c17_bot2" name="Track B stage 2"/>
+    <task id="c17_bot3" name="Track B stage 3"/>
+    <task id="c17_bot4" name="Track B stage 4"/>
+    <parallelGateway id="c17_join" name="Track join"/>
+    <exclusiveGateway id="c17_check" name="Case consistent?"/>
+    <task id="c17_reconcile" name="Reconcile discrepancies"/>
+    <endEvent id="c17_end" name="Case closed"/>
+    <sequenceFlow id="c17_f01" sourceRef="c17_start" targetRef="c17_fork"/>
+    <sequenceFlow id="c17_f02" sourceRef="c17_fork" targetRef="c17_top1"/>
+    <sequenceFlow id="c17_f03" sourceRef="c17_fork" targetRef="c17_bot1"/>
+    <sequenceFlow id="c17_f04" sourceRef="c17_top1" targetRef="c17_top2"/>
+    <sequenceFlow id="c17_f05" sourceRef="c17_top2" targetRef="c17_top3"/>
+    <sequenceFlow id="c17_f06" sourceRef="c17_top3" targetRef="c17_top4"/>
+    <sequenceFlow id="c17_f07" sourceRef="c17_bot1" targetRef="c17_bot2"/>
+    <sequenceFlow id="c17_f08" sourceRef="c17_bot2" targetRef="c17_bot3"/>
+    <sequenceFlow id="c17_f09" sourceRef="c17_bot3" targetRef="c17_bot4"/>
+    <sequenceFlow id="c17_f10" sourceRef="c17_top1" targetRef="c17_bot2"/>
+    <sequenceFlow id="c17_f11" sourceRef="c17_bot1" targetRef="c17_top2"/>
+    <sequenceFlow id="c17_f12" sourceRef="c17_top2" targetRef="c17_bot3"/>
+    <sequenceFlow id="c17_f13" sourceRef="c17_bot2" targetRef="c17_top3"/>
+    <sequenceFlow id="c17_f14" sourceRef="c17_top4" targetRef="c17_join"/>
+    <sequenceFlow id="c17_f15" sourceRef="c17_bot4" targetRef="c17_join"/>
+    <sequenceFlow id="c17_f16" sourceRef="c17_join" targetRef="c17_check"/>
+    <sequenceFlow id="c17_f17" sourceRef="c17_check" targetRef="c17_reconcile"/>
+    <sequenceFlow id="c17_f18" sourceRef="c17_reconcile" targetRef="c17_join"/>
+    <sequenceFlow id="c17_f19" sourceRef="c17_check" targetRef="c17_end"/>
+  </process>
+</definitions>

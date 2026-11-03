@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Complex example 14: ten-rank sequential pipeline with a tracing back edge to rank two. Project-owned (MIT). -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             id="definitions_c14" targetNamespace="http://bpmn-viz.test/complex">
+  <process id="process_c14">
+    <startEvent id="c14_start" name="Order placed"/>
+    <task id="c14_receive" name="Receive order"/>
+    <task id="c14_verify" name="Verify customer account"/>
+    <task id="c14_inventory" name="Check inventory"/>
+    <task id="c14_reserve" name="Reserve stock"/>
+    <task id="c14_picking" name="Prepare picking list"/>
+    <task id="c14_pick" name="Pick items"/>
+    <task id="c14_pack" name="Pack items"/>
+    <task id="c14_shipment" name="Create shipment"/>
+    <task id="c14_carrier" name="Hand over to carrier"/>
+    <exclusiveGateway id="c14_delivered" name="Delivery confirmed?"/>
+    <task id="c14_trace" name="Open tracing case"/>
+    <endEvent id="c14_end" name="Order closed"/>
+    <sequenceFlow id="c14_f01" sourceRef="c14_start" targetRef="c14_receive"/>
+    <sequenceFlow id="c14_f02" sourceRef="c14_receive" targetRef="c14_verify"/>
+    <sequenceFlow id="c14_f03" sourceRef="c14_verify" targetRef="c14_inventory"/>
+    <sequenceFlow id="c14_f04" sourceRef="c14_inventory" targetRef="c14_reserve"/>
+    <sequenceFlow id="c14_f05" sourceRef="c14_reserve" targetRef="c14_picking"/>
+    <sequenceFlow id="c14_f06" sourceRef="c14_picking" targetRef="c14_pick"/>
+    <sequenceFlow id="c14_f07" sourceRef="c14_pick" targetRef="c14_pack"/>
+    <sequenceFlow id="c14_f08" sourceRef="c14_pack" targetRef="c14_shipment"/>
+    <sequenceFlow id="c14_f09" sourceRef="c14_shipment" targetRef="c14_carrier"/>
+    <sequenceFlow id="c14_f10" sourceRef="c14_carrier" targetRef="c14_delivered"/>
+    <sequenceFlow id="c14_f11" sourceRef="c14_delivered" targetRef="c14_trace"/>
+    <sequenceFlow id="c14_f12" sourceRef="c14_trace" targetRef="c14_verify"/>
+    <sequenceFlow id="c14_f13" sourceRef="c14_delivered" targetRef="c14_end"/>
+  </process>
+</definitions>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Complex example 2: completeness loop with rework back edge and two outcomes. Project-owned (MIT). -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             id="definitions_c02" targetNamespace="http://bpmn-viz.test/complex">
+  <process id="process_c02">
+    <startEvent id="c02_start" name="Claim received"/>
+    <task id="c02_intake" name="Register claim"/>
+    <exclusiveGateway id="c02_complete" name="Documents complete?"/>
+    <task id="c02_request" name="Request missing documents"/>
+    <task id="c02_assess" name="Assess damage"/>
+    <exclusiveGateway id="c02_decision" name="Claim decision"/>
+    <task id="c02_payment" name="Issue payment"/>
+    <task id="c02_letter" name="Send rejection letter"/>
+    <parallelGateway id="c02_fork" name="Notification fork"/>
+    <task id="c02_email" name="Email customer"/>
+    <task id="c02_archive" name="Archive case file"/>
+    <parallelGateway id="c02_join" name="Notification join"/>
+    <endEvent id="c02_end_ok" name="Claim settled"/>
+    <endEvent id="c02_end_rej" name="Claim rejected"/>
+    <sequenceFlow id="c02_f01" sourceRef="c02_start" targetRef="c02_intake"/>
+    <sequenceFlow id="c02_f02" sourceRef="c02_intake" targetRef="c02_complete"/>
+    <sequenceFlow id="c02_f03" sourceRef="c02_complete" targetRef="c02_assess"/>
+    <sequenceFlow id="c02_f04" sourceRef="c02_complete" targetRef="c02_request"/>
+    <sequenceFlow id="c02_f05" sourceRef="c02_request" targetRef="c02_intake"/>
+    <sequenceFlow id="c02_f06" sourceRef="c02_assess" targetRef="c02_decision"/>
+    <sequenceFlow id="c02_f07" sourceRef="c02_decision" targetRef="c02_payment"/>
+    <sequenceFlow id="c02_f08" sourceRef="c02_decision" targetRef="c02_letter"/>
+    <sequenceFlow id="c02_f09" sourceRef="c02_letter" targetRef="c02_end_rej"/>
+    <sequenceFlow id="c02_f10" sourceRef="c02_payment" targetRef="c02_fork"/>
+    <sequenceFlow id="c02_f11" sourceRef="c02_fork" targetRef="c02_email"/>
+    <sequenceFlow id="c02_f12" sourceRef="c02_fork" targetRef="c02_archive"/>
+    <sequenceFlow id="c02_f13" sourceRef="c02_email" targetRef="c02_join"/>
+    <sequenceFlow id="c02_f14" sourceRef="c02_archive" targetRef="c02_join"/>
+    <sequenceFlow id="c02_f15" sourceRef="c02_join" targetRef="c02_end_ok"/>
+  </process>
+</definitions>

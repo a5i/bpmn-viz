@@ -1,0 +1,54 @@
+{
+  "edges": [
+    {
+      "bpmnElement": "flow_1",
+      "waypoints": [
+        [
+          116.0,
+          120.0
+        ],
+        [
+          216.0,
+          120.0
+        ]
+      ]
+    },
+    {
+      "bpmnElement": "flow_2",
+      "waypoints": [
+        [
+          316.0,
+          120.0
+        ],
+        [
+          416.0,
+          120.0
+        ]
+      ]
+    }
+  ],
+  "shapes": [
+    {
+      "bpmnElement": "end_order",
+      "height": 36.0,
+      "width": 36.0,
+      "x": 416.0,
+      "y": 102.0
+    },
+    {
+      "bpmnElement": "start_order",
+      "height": 36.0,
+      "width": 36.0,
+      "x": 80.0,
+      "y": 102.0
+    },
+    {
+      "bpmnElement": "task_order",
+      "height": 80.0,
+      "width": 100.0,
+      "x": 216.0,
+      "y": 80.0
+    }
+  ],
+  "warnings": []
+}

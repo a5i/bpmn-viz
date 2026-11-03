@@ -1,0 +1,115 @@
+{
+  "edges": [
+    {
+      "bpmnElement": "le_f1",
+      "waypoints": [
+        [
+          116.0,
+          120.0
+        ],
+        [
+          216.0,
+          120.0
+        ]
+      ]
+    },
+    {
+      "bpmnElement": "le_f2",
+      "waypoints": [
+        [
+          316.0,
+          120.0
+        ],
+        [
+          416.0,
+          120.0
+        ]
+      ]
+    },
+    {
+      "bpmnElement": "le_f3",
+      "waypoints": [
+        [
+          516.0,
+          120.0
+        ],
+        [
+          616.0,
+          120.0
+        ]
+      ]
+    },
+    {
+      "bpmnElement": "le_f4",
+      "waypoints": [
+        [
+          716.0,
+          120.0
+        ],
+        [
+          816.0,
+          120.0
+        ]
+      ]
+    },
+    {
+      "bpmnElement": "le_skip",
+      "waypoints": [
+        [
+          266.0,
+          160.0
+        ],
+        [
+          266.0,
+          180.0
+        ],
+        [
+          834.0,
+          180.0
+        ],
+        [
+          834.0,
+          138.0
+        ]
+      ]
+    }
+  ],
+  "shapes": [
+    {
+      "bpmnElement": "le_approve",
+      "height": 80.0,
+      "width": 100.0,
+      "x": 616.0,
+      "y": 80.0
+    },
+    {
+      "bpmnElement": "le_end",
+      "height": 36.0,
+      "width": 36.0,
+      "x": 816.0,
+      "y": 102.0
+    },
+    {
+      "bpmnElement": "le_prepare",
+      "height": 80.0,
+      "width": 100.0,
+      "x": 216.0,
+      "y": 80.0
+    },
+    {
+      "bpmnElement": "le_review",
+      "height": 80.0,
+      "width": 100.0,
+      "x": 416.0,
+      "y": 80.0
+    },
+    {
+      "bpmnElement": "le_start",
+      "height": 36.0,
+      "width": 36.0,
+      "x": 80.0,
+      "y": 102.0
+    }
+  ],
+  "warnings": []
+}

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Complex example 9: inclusive gateway fan-out of review tracks with an escalation back edge. Project-owned (MIT). -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             id="definitions_c09" targetNamespace="http://bpmn-viz.test/complex">
+  <process id="process_c09">
+    <startEvent id="c09_start" name="Content flagged"/>
+    <task id="c09_triage" name="Automated triage"/>
+    <exclusiveGateway id="c09_conf" name="High confidence violation?"/>
+    <task id="c09_remove" name="Remove content"/>
+    <inclusiveGateway id="c09_fork" name="Select review tracks"/>
+    <task id="c09_policy" name="Policy review"/>
+    <task id="c09_context" name="Context check"/>
+    <task id="c09_history" name="User history check"/>
+    <inclusiveGateway id="c09_join" name="Reviews collected"/>
+    <exclusiveGateway id="c09_decision" name="Violation confirmed?"/>
+    <task id="c09_restore" name="Restore content"/>
+    <task id="c09_escalate" name="Escalate to specialist"/>
+    <endEvent id="c09_end_removed" name="Content removed"/>
+    <endEvent id="c09_end_restored" name="Content restored"/>
+    <sequenceFlow id="c09_f01" sourceRef="c09_start" targetRef="c09_triage"/>
+    <sequenceFlow id="c09_f02" sourceRef="c09_triage" targetRef="c09_conf"/>
+    <sequenceFlow id="c09_f03" sourceRef="c09_conf" targetRef="c09_remove"/>
+    <sequenceFlow id="c09_f04" sourceRef="c09_remove" targetRef="c09_end_removed"/>
+    <sequenceFlow id="c09_f05" sourceRef="c09_conf" targetRef="c09_fork"/>
+    <sequenceFlow id="c09_f06" sourceRef="c09_fork" targetRef="c09_policy"/>
+    <sequenceFlow id="c09_f07" sourceRef="c09_fork" targetRef="c09_context"/>
+    <sequenceFlow id="c09_f08" sourceRef="c09_fork" targetRef="c09_history"/>
+    <sequenceFlow id="c09_f09" sourceRef="c09_policy" targetRef="c09_join"/>
+    <sequenceFlow id="c09_f10" sourceRef="c09_context" targetRef="c09_join"/>
+    <sequenceFlow id="c09_f11" sourceRef="c09_history" targetRef="c09_join"/>
+    <sequenceFlow id="c09_f12" sourceRef="c09_join" targetRef="c09_decision"/>
+    <sequenceFlow id="c09_f13" sourceRef="c09_decision" targetRef="c09_restore"/>
+    <sequenceFlow id="c09_f14" sourceRef="c09_restore" targetRef="c09_end_restored"/>
+    <sequenceFlow id="c09_f15" sourceRef="c09_decision" targetRef="c09_escalate"/>
+    <sequenceFlow id="c09_f16" sourceRef="c09_escalate" targetRef="c09_decision"/>
+  </process>
+</definitions>

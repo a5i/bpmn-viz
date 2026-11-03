@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Complex example 5: two correction loops plus a payment scheduling decision. Project-owned (MIT). -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             id="definitions_c05" targetNamespace="http://bpmn-viz.test/complex">
+  <process id="process_c05">
+    <startEvent id="c05_start" name="Invoice received"/>
+    <task id="c05_validate" name="Validate invoice data"/>
+    <exclusiveGateway id="c05_valid" name="Invoice valid?"/>
+    <task id="c05_correct" name="Request correction from vendor"/>
+    <task id="c05_match" name="Match against purchase order"/>
+    <exclusiveGateway id="c05_matchok" name="Three-way match ok?"/>
+    <task id="c05_exception" name="Handle exception manually"/>
+    <task id="c05_approve" name="Approve for payment"/>
+    <exclusiveGateway id="c05_schedule" name="Due within payment run?"/>
+    <task id="c05_pay_now" name="Execute immediate payment"/>
+    <task id="c05_queue" name="Queue for payment run"/>
+    <endEvent id="c05_end_now" name="Paid immediately"/>
+    <endEvent id="c05_end_sched" name="Payment scheduled"/>
+    <sequenceFlow id="c05_f01" sourceRef="c05_start" targetRef="c05_validate"/>
+    <sequenceFlow id="c05_f02" sourceRef="c05_validate" targetRef="c05_valid"/>
+    <sequenceFlow id="c05_f03" sourceRef="c05_valid" targetRef="c05_match"/>
+    <sequenceFlow id="c05_f04" sourceRef="c05_valid" targetRef="c05_correct"/>
+    <sequenceFlow id="c05_f05" sourceRef="c05_correct" targetRef="c05_validate"/>
+    <sequenceFlow id="c05_f06" sourceRef="c05_match" targetRef="c05_matchok"/>
+    <sequenceFlow id="c05_f07" sourceRef="c05_matchok" targetRef="c05_approve"/>
+    <sequenceFlow id="c05_f08" sourceRef="c05_matchok" targetRef="c05_exception"/>
+    <sequenceFlow id="c05_f09" sourceRef="c05_exception" targetRef="c05_validate"/>
+    <sequenceFlow id="c05_f10" sourceRef="c05_approve" targetRef="c05_schedule"/>
+    <sequenceFlow id="c05_f11" sourceRef="c05_schedule" targetRef="c05_pay_now"/>
+    <sequenceFlow id="c05_f12" sourceRef="c05_schedule" targetRef="c05_queue"/>
+    <sequenceFlow id="c05_f13" sourceRef="c05_pay_now" targetRef="c05_end_now"/>
+    <sequenceFlow id="c05_f14" sourceRef="c05_queue" targetRef="c05_end_sched"/>
+  </process>
+</definitions>

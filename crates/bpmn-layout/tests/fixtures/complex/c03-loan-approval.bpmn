@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Complex example 3: wide six-branch parallel fan-out with a three-way outcome split. Project-owned (MIT). -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             id="definitions_c03" targetNamespace="http://bpmn-viz.test/complex">
+  <process id="process_c03">
+    <startEvent id="c03_start" name="Application submitted"/>
+    <parallelGateway id="c03_fork" name="Run checks"/>
+    <task id="c03_credit" name="Credit score check"/>
+    <task id="c03_income" name="Income verification"/>
+    <task id="c03_collateral" name="Collateral appraisal"/>
+    <task id="c03_fraud" name="Fraud screening"/>
+    <task id="c03_kyc" name="Identity verification"/>
+    <task id="c03_scoring" name="Internal risk scoring"/>
+    <parallelGateway id="c03_join" name="Checks complete"/>
+    <exclusiveGateway id="c03_decision" name="Final decision?"/>
+    <task id="c03_contract" name="Prepare approval contract"/>
+    <task id="c03_conditions" name="Set lending conditions"/>
+    <task id="c03_reject" name="Notify rejection"/>
+    <endEvent id="c03_end_ok" name="Approved"/>
+    <endEvent id="c03_end_cond" name="Conditionally approved"/>
+    <endEvent id="c03_end_rej" name="Rejected"/>
+    <sequenceFlow id="c03_f01" sourceRef="c03_start" targetRef="c03_fork"/>
+    <sequenceFlow id="c03_f02" sourceRef="c03_fork" targetRef="c03_credit"/>
+    <sequenceFlow id="c03_f03" sourceRef="c03_fork" targetRef="c03_income"/>
+    <sequenceFlow id="c03_f04" sourceRef="c03_fork" targetRef="c03_collateral"/>
+    <sequenceFlow id="c03_f05" sourceRef="c03_fork" targetRef="c03_fraud"/>
+    <sequenceFlow id="c03_f06" sourceRef="c03_fork" targetRef="c03_kyc"/>
+    <sequenceFlow id="c03_f07" sourceRef="c03_fork" targetRef="c03_scoring"/>
+    <sequenceFlow id="c03_f08" sourceRef="c03_credit" targetRef="c03_join"/>
+    <sequenceFlow id="c03_f09" sourceRef="c03_income" targetRef="c03_join"/>
+    <sequenceFlow id="c03_f10" sourceRef="c03_collateral" targetRef="c03_join"/>
+    <sequenceFlow id="c03_f11" sourceRef="c03_fraud" targetRef="c03_join"/>
+    <sequenceFlow id="c03_f12" sourceRef="c03_kyc" targetRef="c03_join"/>
+    <sequenceFlow id="c03_f13" sourceRef="c03_scoring" targetRef="c03_join"/>
+    <sequenceFlow id="c03_f14" sourceRef="c03_join" targetRef="c03_decision"/>
+    <sequenceFlow id="c03_f15" sourceRef="c03_decision" targetRef="c03_contract"/>
+    <sequenceFlow id="c03_f16" sourceRef="c03_decision" targetRef="c03_conditions"/>
+    <sequenceFlow id="c03_f17" sourceRef="c03_decision" targetRef="c03_reject"/>
+    <sequenceFlow id="c03_f18" sourceRef="c03_contract" targetRef="c03_end_ok"/>
+    <sequenceFlow id="c03_f19" sourceRef="c03_conditions" targetRef="c03_end_cond"/>
+    <sequenceFlow id="c03_f20" sourceRef="c03_reject" targetRef="c03_end_rej"/>
+  </process>
+</definitions>

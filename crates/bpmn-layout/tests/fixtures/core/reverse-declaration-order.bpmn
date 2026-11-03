@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Fixture 7 (TEST-005): reverse declaration order (end event and later flows declared first);
+     deterministic tie-breaking by declaration order. Project-owned (MIT). -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             id="definitions_7" targetNamespace="http://bpmn-viz.test/layout">
+  <process id="process_reverse">
+    <endEvent id="rev_end" name="Archived"/>
+    <task id="rev_archive" name="Archive"/>
+    <task id="rev_review" name="Review"/>
+    <startEvent id="rev_start" name="Month end"/>
+    <sequenceFlow id="rev_f3" sourceRef="rev_archive" targetRef="rev_end"/>
+    <sequenceFlow id="rev_f2" sourceRef="rev_review" targetRef="rev_archive"/>
+    <sequenceFlow id="rev_f1" sourceRef="rev_start" targetRef="rev_review"/>
+  </process>
+</definitions>

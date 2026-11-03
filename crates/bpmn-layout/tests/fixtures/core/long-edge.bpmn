@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Fixture 8 (TEST-005): long edge spanning multiple ranks must avoid intermediate shapes
+     (audit skip from review straight to the archive step). Project-owned (MIT). -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             id="definitions_8" targetNamespace="http://bpmn-viz.test/layout">
+  <process id="process_long_edge">
+    <startEvent id="le_start" name="Period open"/>
+    <task id="le_prepare" name="Prepare records"/>
+    <task id="le_review" name="Review records"/>
+    <task id="le_approve" name="Approve records"/>
+    <endEvent id="le_end" name="Period closed"/>
+    <sequenceFlow id="le_f1" sourceRef="le_start" targetRef="le_prepare"/>
+    <sequenceFlow id="le_f2" sourceRef="le_prepare" targetRef="le_review"/>
+    <sequenceFlow id="le_f3" sourceRef="le_review" targetRef="le_approve"/>
+    <sequenceFlow id="le_f4" sourceRef="le_approve" targetRef="le_end"/>
+    <sequenceFlow id="le_skip" name="Audit skip" sourceRef="le_prepare" targetRef="le_end"/>
+  </process>
+</definitions>

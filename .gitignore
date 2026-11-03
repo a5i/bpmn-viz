@@ -16,3 +16,9 @@
 .idea/
 .vscode/
 **/*.tmp
+
+# Layout reference harness (dev-only)
+tools/reference-layout/node_modules/
+
+# proptest auto-generated regression persistence
+**/*.proptest-regressions

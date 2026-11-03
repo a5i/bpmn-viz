@@ -1,0 +1,65 @@
+{
+  "fixture": "start-task-end.bpmn",
+  "reference": {
+    "repository": "https://github.com/bpmn-io/bpmn-auto-layout",
+    "version": "2.0.0-alpha.2",
+    "commit": "75a7f30958c7050474d48db09afd4cc7d352ccad"
+  },
+  "shapes": [
+    {
+      "di": "BPMNShape_end_order",
+      "bpmnElement": "end_order",
+      "x": 416,
+      "y": 102,
+      "width": 36,
+      "height": 36
+    },
+    {
+      "di": "BPMNShape_start_order",
+      "bpmnElement": "start_order",
+      "x": 80,
+      "y": 102,
+      "width": 36,
+      "height": 36
+    },
+    {
+      "di": "BPMNShape_task_order",
+      "bpmnElement": "task_order",
+      "x": 216,
+      "y": 80,
+      "width": 100,
+      "height": 80
+    }
+  ],
+  "edges": [
+    {
+      "di": "BPMNEdge_flow_1",
+      "bpmnElement": "flow_1",
+      "waypoints": [
+        [
+          116,
+          120
+        ],
+        [
+          216,
+          120
+        ]
+      ]
+    },
+    {
+      "di": "BPMNEdge_flow_2",
+      "bpmnElement": "flow_2",
+      "waypoints": [
+        [
+          316,
+          120
+        ],
+        [
+          416,
+          120
+        ]
+      ]
+    }
+  ],
+  "warnings": []
+}

@@ -1,0 +1,153 @@
+{
+  "fixture": "xor-split-join.bpmn",
+  "reference": {
+    "repository": "https://github.com/bpmn-io/bpmn-auto-layout",
+    "version": "2.0.0-alpha.2",
+    "commit": "75a7f30958c7050474d48db09afd4cc7d352ccad"
+  },
+  "shapes": [
+    {
+      "di": "BPMNShape_xor_cancel",
+      "bpmnElement": "xor_cancel",
+      "x": 366,
+      "y": 240,
+      "width": 100,
+      "height": 80
+    },
+    {
+      "di": "BPMNShape_xor_end",
+      "bpmnElement": "xor_end",
+      "x": 716,
+      "y": 102,
+      "width": 36,
+      "height": 36
+    },
+    {
+      "di": "BPMNShape_xor_join",
+      "bpmnElement": "xor_join",
+      "x": 566,
+      "y": 95,
+      "width": 50,
+      "height": 50
+    },
+    {
+      "di": "BPMNShape_xor_ship",
+      "bpmnElement": "xor_ship",
+      "x": 366,
+      "y": 80,
+      "width": 100,
+      "height": 80
+    },
+    {
+      "di": "BPMNShape_xor_split",
+      "bpmnElement": "xor_split",
+      "x": 216,
+      "y": 95,
+      "width": 50,
+      "height": 50
+    },
+    {
+      "di": "BPMNShape_xor_start",
+      "bpmnElement": "xor_start",
+      "x": 80,
+      "y": 102,
+      "width": 36,
+      "height": 36
+    }
+  ],
+  "edges": [
+    {
+      "di": "BPMNEdge_xor_f1",
+      "bpmnElement": "xor_f1",
+      "waypoints": [
+        [
+          116,
+          120
+        ],
+        [
+          216,
+          120
+        ]
+      ]
+    },
+    {
+      "di": "BPMNEdge_xor_f2",
+      "bpmnElement": "xor_f2",
+      "waypoints": [
+        [
+          266,
+          120
+        ],
+        [
+          366,
+          120
+        ]
+      ]
+    },
+    {
+      "di": "BPMNEdge_xor_f3",
+      "bpmnElement": "xor_f3",
+      "waypoints": [
+        [
+          241,
+          145
+        ],
+        [
+          241,
+          280
+        ],
+        [
+          366,
+          280
+        ]
+      ]
+    },
+    {
+      "di": "BPMNEdge_xor_f4",
+      "bpmnElement": "xor_f4",
+      "waypoints": [
+        [
+          466,
+          120
+        ],
+        [
+          566,
+          120
+        ]
+      ]
+    },
+    {
+      "di": "BPMNEdge_xor_f5",
+      "bpmnElement": "xor_f5",
+      "waypoints": [
+        [
+          466,
+          280
+        ],
+        [
+          591,
+          280
+        ],
+        [
+          591,
+          145
+        ]
+      ]
+    },
+    {
+      "di": "BPMNEdge_xor_f6",
+      "bpmnElement": "xor_f6",
+      "waypoints": [
+        [
+          616,
+          120
+        ],
+        [
+          716,
+          120
+        ]
+      ]
+    }
+  ],
+  "warnings": []
+}

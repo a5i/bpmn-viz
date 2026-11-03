@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Fixture 1 (TEST-005): straight spine, deterministic rank order, no overlapping rectangles. Project-owned (MIT). -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             id="definitions_1" targetNamespace="http://bpmn-viz.test/layout">
+  <process id="process_order">
+    <startEvent id="start_order" name="Received"/>
+    <task id="task_order" name="Handle order"/>
+    <endEvent id="end_order" name="Done"/>
+    <sequenceFlow id="flow_1" sourceRef="start_order" targetRef="task_order"/>
+    <sequenceFlow id="flow_2" sourceRef="task_order" targetRef="end_order"/>
+  </process>
+</definitions>

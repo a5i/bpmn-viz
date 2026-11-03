@@ -15,6 +15,10 @@ All notable changes to this project are documented here. Format based on [Keep a
 - `bpmn-raster`: resvg-based PNG export with scale validation and pixel budgets.
 - `bpmn-cli`: `render`, `inspect`, `validate` with documented exit codes (0/2/3/4/5), text and JSON diagnostics, atomic writes, diagram selection by index or id.
 - Test suite: 18 suites (90+ tests) with committed golden SVG, MIWG smoke against pinned external fixtures, fuzz harnesses, and DocVera-validated documentation set (SPEC/ADR/EPIC/TASK/EXP/TEST/REPORT/RISK).
+- `bpmn-layout`: deterministic, pure-Rust BPMN-aware automatic layout (M0+M1 of EPIC-005): single-process scope extraction and validation, semantic spine/band analysis with declaration-order tie-breaking, rank columns and semantic band rows, orthogonal routing with obstacle avoidance, typed DI generation plus an invariant verifier, structured `layout.*` errors and warnings, and renderer-consumable output (TASK-018; ADR-0006/ADR-0007; reference parity against pinned `bpmn-io/bpmn-auto-layout@2.0.0-alpha.2` via the dev-only Node harness under `tools/reference-layout/`).
+- `bpmn-xml`: self-closing `<boundaryEvent/>` elements now parse as boundary events instead of degrading to the fallback element kind (regression-tested; found by the TASK-018 layout contract tests).
+- Documentation: EPIC-005, TASK-018, ADR-0006 (native layered layout, no JS runtime), ADR-0007 (Preserve/Generate/Reflow modes), EXP-004 (reference pin `75a7f309` + performance baseline), TEST-005 (layout test plan).
+- `bpmn-layout` tests: twenty complex stress fixtures under `tests/fixtures/complex/` (nested XOR/AND, wide fan-in/fan-out, inclusive gateways, intermediate events, multiple starts/ends, disconnected components, scrambled declaration order, cross-band links, subprocess cascades) running through the geometry-invariant, determinism, warning-contract (`complex.rs`) and renderer-consumability suites, plus a `failures/routing-feedback-leg-blocked.bpmn` regression pinning the structured `layout.routing_failed` behavior of the M1 feedback router (TEST-005 §Fixtures).
 
 ### Fixed
 

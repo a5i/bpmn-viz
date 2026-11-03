@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Complex example 10: intermediate catch/throw events inside a rerouting chain. Project-owned (MIT). -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             id="definitions_c10" targetNamespace="http://bpmn-viz.test/complex">
+  <process id="process_c10">
+    <startEvent id="c10_start" name="Shipment scheduled"/>
+    <task id="c10_transit" name="Ship via primary route"/>
+    <intermediateCatchEvent id="c10_delay" name="Delay signal received"/>
+    <task id="c10_assess" name="Assess delay impact"/>
+    <exclusiveGateway id="c10_supplier" name="Supplier can expedite?"/>
+    <intermediateThrowEvent id="c10_notify" name="Customer notified of delay"/>
+    <task id="c10_renegotiate" name="Renegotiate delivery terms"/>
+    <task id="c10_reroute" name="Reroute via alternate hub"/>
+    <parallelGateway id="c10_fork" name="Destination fork"/>
+    <task id="c10_customs" name="Clear customs"/>
+    <task id="c10_transport" name="Book local transport"/>
+    <parallelGateway id="c10_join" name="Destination join"/>
+    <task id="c10_deliver" name="Deliver goods"/>
+    <endEvent id="c10_end" name="Delivered"/>
+    <sequenceFlow id="c10_f01" sourceRef="c10_start" targetRef="c10_transit"/>
+    <sequenceFlow id="c10_f02" sourceRef="c10_transit" targetRef="c10_delay"/>
+    <sequenceFlow id="c10_f03" sourceRef="c10_delay" targetRef="c10_assess"/>
+    <sequenceFlow id="c10_f04" sourceRef="c10_assess" targetRef="c10_supplier"/>
+    <sequenceFlow id="c10_f05" sourceRef="c10_supplier" targetRef="c10_notify"/>
+    <sequenceFlow id="c10_f06" sourceRef="c10_notify" targetRef="c10_renegotiate"/>
+    <sequenceFlow id="c10_f07" sourceRef="c10_renegotiate" targetRef="c10_supplier"/>
+    <sequenceFlow id="c10_f08" sourceRef="c10_supplier" targetRef="c10_reroute"/>
+    <sequenceFlow id="c10_f09" sourceRef="c10_reroute" targetRef="c10_fork"/>
+    <sequenceFlow id="c10_f10" sourceRef="c10_fork" targetRef="c10_customs"/>
+    <sequenceFlow id="c10_f11" sourceRef="c10_fork" targetRef="c10_transport"/>
+    <sequenceFlow id="c10_f12" sourceRef="c10_customs" targetRef="c10_join"/>
+    <sequenceFlow id="c10_f13" sourceRef="c10_transport" targetRef="c10_join"/>
+    <sequenceFlow id="c10_f14" sourceRef="c10_join" targetRef="c10_deliver"/>
+    <sequenceFlow id="c10_f15" sourceRef="c10_deliver" targetRef="c10_end"/>
+  </process>
+</definitions>

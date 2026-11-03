@@ -1,0 +1,10 @@
+{
+  "name": "bpmn-viz-reference-layout",
+  "private": true,
+  "type": "module",
+  "description": "Dev-only harness: runs the pinned bpmn-io/bpmn-auto-layout reference on project fixtures and emits canonical JSON for differential tests. Not part of the Rust build; never linked from the library (ADR-0006).",
+  "devDependencies": {
+    "bpmn-auto-layout": "2.0.0-alpha.2",
+    "bpmn-moddle": "^10.0.0"
+  }
+}

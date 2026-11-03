@@ -1,0 +1,117 @@
+{
+  "fixture": "multiple-starts.bpmn",
+  "reference": {
+    "repository": "https://github.com/bpmn-io/bpmn-auto-layout",
+    "version": "2.0.0-alpha.2",
+    "commit": "75a7f30958c7050474d48db09afd4cc7d352ccad"
+  },
+  "shapes": [
+    {
+      "di": "BPMNShape_ms_end_a",
+      "bpmnElement": "ms_end_a",
+      "x": 416,
+      "y": 102,
+      "width": 36,
+      "height": 36
+    },
+    {
+      "di": "BPMNShape_ms_end_b",
+      "bpmnElement": "ms_end_b",
+      "x": 416,
+      "y": 342,
+      "width": 36,
+      "height": 36
+    },
+    {
+      "di": "BPMNShape_ms_start_a",
+      "bpmnElement": "ms_start_a",
+      "x": 80,
+      "y": 102,
+      "width": 36,
+      "height": 36
+    },
+    {
+      "di": "BPMNShape_ms_start_b",
+      "bpmnElement": "ms_start_b",
+      "x": 80,
+      "y": 342,
+      "width": 36,
+      "height": 36
+    },
+    {
+      "di": "BPMNShape_ms_task_a",
+      "bpmnElement": "ms_task_a",
+      "x": 216,
+      "y": 80,
+      "width": 100,
+      "height": 80
+    },
+    {
+      "di": "BPMNShape_ms_task_b",
+      "bpmnElement": "ms_task_b",
+      "x": 216,
+      "y": 320,
+      "width": 100,
+      "height": 80
+    }
+  ],
+  "edges": [
+    {
+      "di": "BPMNEdge_ms_f1",
+      "bpmnElement": "ms_f1",
+      "waypoints": [
+        [
+          116,
+          120
+        ],
+        [
+          216,
+          120
+        ]
+      ]
+    },
+    {
+      "di": "BPMNEdge_ms_f2",
+      "bpmnElement": "ms_f2",
+      "waypoints": [
+        [
+          316,
+          120
+        ],
+        [
+          416,
+          120
+        ]
+      ]
+    },
+    {
+      "di": "BPMNEdge_ms_f3",
+      "bpmnElement": "ms_f3",
+      "waypoints": [
+        [
+          116,
+          360
+        ],
+        [
+          216,
+          360
+        ]
+      ]
+    },
+    {
+      "di": "BPMNEdge_ms_f4",
+      "bpmnElement": "ms_f4",
+      "waypoints": [
+        [
+          316,
+          360
+        ],
+        [
+          416,
+          360
+        ]
+      ]
+    }
+  ],
+  "warnings": []
+}

@@ -1,0 +1,95 @@
+{
+  "fixture": "disconnected.bpmn",
+  "reference": {
+    "repository": "https://github.com/bpmn-io/bpmn-auto-layout",
+    "version": "2.0.0-alpha.2",
+    "commit": "75a7f30958c7050474d48db09afd4cc7d352ccad"
+  },
+  "shapes": [
+    {
+      "di": "BPMNShape_disc_end",
+      "bpmnElement": "disc_end",
+      "x": 448,
+      "y": 342,
+      "width": 36,
+      "height": 36
+    },
+    {
+      "di": "BPMNShape_disc_orphan",
+      "bpmnElement": "disc_orphan",
+      "x": 80,
+      "y": 80,
+      "width": 100,
+      "height": 80
+    },
+    {
+      "di": "BPMNShape_disc_orphan_end",
+      "bpmnElement": "disc_orphan_end",
+      "x": 312,
+      "y": 102,
+      "width": 36,
+      "height": 36
+    },
+    {
+      "di": "BPMNShape_disc_start",
+      "bpmnElement": "disc_start",
+      "x": 80,
+      "y": 342,
+      "width": 36,
+      "height": 36
+    },
+    {
+      "di": "BPMNShape_disc_task",
+      "bpmnElement": "disc_task",
+      "x": 248,
+      "y": 320,
+      "width": 100,
+      "height": 80
+    }
+  ],
+  "edges": [
+    {
+      "di": "BPMNEdge_disc_f1",
+      "bpmnElement": "disc_f1",
+      "waypoints": [
+        [
+          180,
+          120
+        ],
+        [
+          312,
+          120
+        ]
+      ]
+    },
+    {
+      "di": "BPMNEdge_disc_f2",
+      "bpmnElement": "disc_f2",
+      "waypoints": [
+        [
+          116,
+          360
+        ],
+        [
+          248,
+          360
+        ]
+      ]
+    },
+    {
+      "di": "BPMNEdge_disc_f3",
+      "bpmnElement": "disc_f3",
+      "waypoints": [
+        [
+          348,
+          360
+        ],
+        [
+          448,
+          360
+        ]
+      ]
+    }
+  ],
+  "warnings": []
+}

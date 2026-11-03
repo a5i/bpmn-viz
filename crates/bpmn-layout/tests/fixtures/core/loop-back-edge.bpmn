@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Fixture 4 (TEST-005): loop back edge routed outside unrelated shape interiors, deterministic channel. Project-owned (MIT). -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             id="definitions_4" targetNamespace="http://bpmn-viz.test/layout">
+  <process id="process_loop">
+    <startEvent id="loop_start" name="Job submitted"/>
+    <task id="loop_run" name="Run job"/>
+    <exclusiveGateway id="loop_check" name="Succeeded?"/>
+    <task id="loop_notify" name="Notify user"/>
+    <endEvent id="loop_end" name="Finished"/>
+    <sequenceFlow id="loop_f1" sourceRef="loop_start" targetRef="loop_run"/>
+    <sequenceFlow id="loop_f2" sourceRef="loop_run" targetRef="loop_check"/>
+    <sequenceFlow id="loop_f3" sourceRef="loop_check" targetRef="loop_notify"/>
+    <sequenceFlow id="loop_f4" sourceRef="loop_notify" targetRef="loop_end"/>
+    <sequenceFlow id="loop_f5" name="Retry" sourceRef="loop_check" targetRef="loop_run"/>
+  </process>
+</definitions>

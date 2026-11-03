@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Complex example 4: three parallel bookings with a confirmation loop back to the fork. Project-owned (MIT). -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             id="definitions_c04" targetNamespace="http://bpmn-viz.test/complex">
+  <process id="process_c04">
+    <startEvent id="c04_start" name="Trip requested"/>
+    <parallelGateway id="c04_fork" name="Book components"/>
+    <task id="c04_flight" name="Book flight"/>
+    <task id="c04_hotel" name="Book hotel"/>
+    <task id="c04_car" name="Rent car"/>
+    <parallelGateway id="c04_join" name="Bookings placed"/>
+    <exclusiveGateway id="c04_check" name="All bookings confirmed?"/>
+    <task id="c04_rebook" name="Rebook unavailable item"/>
+    <task id="c04_confirm" name="Send itinerary"/>
+    <endEvent id="c04_end" name="Trip booked"/>
+    <sequenceFlow id="c04_f01" sourceRef="c04_start" targetRef="c04_fork"/>
+    <sequenceFlow id="c04_f02" sourceRef="c04_fork" targetRef="c04_flight"/>
+    <sequenceFlow id="c04_f03" sourceRef="c04_fork" targetRef="c04_hotel"/>
+    <sequenceFlow id="c04_f04" sourceRef="c04_fork" targetRef="c04_car"/>
+    <sequenceFlow id="c04_f05" sourceRef="c04_flight" targetRef="c04_join"/>
+    <sequenceFlow id="c04_f06" sourceRef="c04_hotel" targetRef="c04_join"/>
+    <sequenceFlow id="c04_f07" sourceRef="c04_car" targetRef="c04_join"/>
+    <sequenceFlow id="c04_f08" sourceRef="c04_join" targetRef="c04_check"/>
+    <sequenceFlow id="c04_f09" sourceRef="c04_check" targetRef="c04_rebook"/>
+    <sequenceFlow id="c04_f10" sourceRef="c04_rebook" targetRef="c04_fork"/>
+    <sequenceFlow id="c04_f11" sourceRef="c04_check" targetRef="c04_confirm"/>
+    <sequenceFlow id="c04_f12" sourceRef="c04_confirm" targetRef="c04_end"/>
+  </process>
+</definitions>

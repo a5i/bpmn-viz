@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Complex example 20: collapsed subprocess cascade with approval loops (body layout is M2). Project-owned (MIT). -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             id="definitions_c20" targetNamespace="http://bpmn-viz.test/complex">
+  <process id="process_c20">
+    <startEvent id="c20_start" name="Engagement started"/>
+    <subProcess id="c20_discovery" name="Discovery phase">
+      <task id="c20_discovery_work" name="Discover requirements"/>
+    </subProcess>
+    <exclusiveGateway id="c20_disc_ok" name="Discovery approved?"/>
+    <task id="c20_revise" name="Revise scope"/>
+    <subProcess id="c20_build" name="Build phase">
+      <task id="c20_build_work" name="Implement solution"/>
+    </subProcess>
+    <subProcess id="c20_test" name="Test phase">
+      <task id="c20_test_work" name="Run acceptance tests"/>
+    </subProcess>
+    <exclusiveGateway id="c20_qa" name="Quality gate passed?"/>
+    <task id="c20_bugfix" name="Fix critical defects"/>
+    <subProcess id="c20_deploy" name="Deployment phase">
+      <task id="c20_deploy_work" name="Roll out to production"/>
+    </subProcess>
+    <endEvent id="c20_end" name="Engagement delivered"/>
+    <sequenceFlow id="c20_f01" sourceRef="c20_start" targetRef="c20_discovery"/>
+    <sequenceFlow id="c20_f02" sourceRef="c20_discovery" targetRef="c20_disc_ok"/>
+    <sequenceFlow id="c20_f03" sourceRef="c20_disc_ok" targetRef="c20_build"/>
+    <sequenceFlow id="c20_f04" sourceRef="c20_disc_ok" targetRef="c20_revise"/>
+    <sequenceFlow id="c20_f05" sourceRef="c20_revise" targetRef="c20_discovery"/>
+    <sequenceFlow id="c20_f06" sourceRef="c20_build" targetRef="c20_test"/>
+    <sequenceFlow id="c20_f07" sourceRef="c20_test" targetRef="c20_qa"/>
+    <sequenceFlow id="c20_f08" sourceRef="c20_qa" targetRef="c20_deploy"/>
+    <sequenceFlow id="c20_f09" sourceRef="c20_qa" targetRef="c20_bugfix"/>
+    <sequenceFlow id="c20_f10" sourceRef="c20_bugfix" targetRef="c20_test"/>
+    <sequenceFlow id="c20_f11" sourceRef="c20_deploy" targetRef="c20_end"/>
+  </process>
+</definitions>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Fixture 2 (TEST-005): XOR split/join, two alternative branches, primary continuity path on band 0. Project-owned (MIT). -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             id="definitions_2" targetNamespace="http://bpmn-viz.test/layout">
+  <process id="process_xor">
+    <startEvent id="xor_start" name="Order placed"/>
+    <exclusiveGateway id="xor_split" name="Approved?"/>
+    <task id="xor_ship" name="Ship order"/>
+    <task id="xor_cancel" name="Cancel order"/>
+    <exclusiveGateway id="xor_join" name="Merged"/>
+    <endEvent id="xor_end" name="Closed"/>
+    <sequenceFlow id="xor_f1" sourceRef="xor_start" targetRef="xor_split"/>
+    <sequenceFlow id="xor_f2" sourceRef="xor_split" targetRef="xor_ship"/>
+    <sequenceFlow id="xor_f3" sourceRef="xor_split" targetRef="xor_cancel"/>
+    <sequenceFlow id="xor_f4" sourceRef="xor_ship" targetRef="xor_join"/>
+    <sequenceFlow id="xor_f5" sourceRef="xor_cancel" targetRef="xor_join"/>
+    <sequenceFlow id="xor_f6" sourceRef="xor_join" targetRef="xor_end"/>
+  </process>
+</definitions>

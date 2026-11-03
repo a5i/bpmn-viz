@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Complex example 16: three disconnected components interleaved in declaration order. Project-owned (MIT). -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             id="definitions_c16" targetNamespace="http://bpmn-viz.test/complex">
+  <process id="process_c16">
+    <startEvent id="c16_a_start" name="Component A intake"/>
+    <task id="c16_b_step" name="Component B step"/>
+    <task id="c16_c_step1" name="Component C step 1"/>
+    <exclusiveGateway id="c16_b_loop" name="Component B retry?"/>
+    <task id="c16_a_step" name="Component A step"/>
+    <task id="c16_c_step2" name="Component C step 2"/>
+    <endEvent id="c16_a_end" name="Component A done"/>
+    <task id="c16_b_fix" name="Component B correction"/>
+    <startEvent id="c16_b_start" name="Component B intake"/>
+    <task id="c16_c_step3" name="Component C step 3"/>
+    <sequenceFlow id="c16_f01" sourceRef="c16_a_start" targetRef="c16_a_step"/>
+    <sequenceFlow id="c16_f04" sourceRef="c16_b_fix" targetRef="c16_b_step"/>
+    <sequenceFlow id="c16_f02" sourceRef="c16_b_start" targetRef="c16_b_step"/>
+    <sequenceFlow id="c16_f06" sourceRef="c16_c_step2" targetRef="c16_c_step3"/>
+    <sequenceFlow id="c16_f03" sourceRef="c16_a_step" targetRef="c16_a_end"/>
+    <sequenceFlow id="c16_f05" sourceRef="c16_c_step1" targetRef="c16_c_step2"/>
+    <sequenceFlow id="c16_f07" sourceRef="c16_b_step" targetRef="c16_b_loop"/>
+    <sequenceFlow id="c16_f08" sourceRef="c16_b_loop" targetRef="c16_b_fix"/>
+    <endEvent id="c16_b_end" name="Component B done"/>
+    <sequenceFlow id="c16_f09" sourceRef="c16_b_loop" targetRef="c16_b_end"/>
+    <endEvent id="c16_c_end" name="Component C done"/>
+    <sequenceFlow id="c16_f10" sourceRef="c16_c_step3" targetRef="c16_c_end"/>
+  </process>
+</definitions>

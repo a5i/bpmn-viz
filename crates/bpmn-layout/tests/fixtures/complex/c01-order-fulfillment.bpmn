@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Complex example 1: nested XOR decision inside an AND fork/join (order fulfillment). Project-owned (MIT). -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             id="definitions_c01" targetNamespace="http://bpmn-viz.test/complex">
+  <process id="process_c01">
+    <startEvent id="c01_start" name="Order received"/>
+    <exclusiveGateway id="c01_type" name="Domestic or international?"/>
+    <task id="c01_pack" name="Pack order"/>
+    <task id="c01_label" name="Print shipping label"/>
+    <task id="c01_customs" name="Prepare customs documents"/>
+    <task id="c01_duty" name="Calculate duties and taxes"/>
+    <exclusiveGateway id="c01_merge" name="Order prepared"/>
+    <parallelGateway id="c01_fork" name="Fulfillment fork"/>
+    <task id="c01_ship" name="Ship parcel"/>
+    <task id="c01_invoice" name="Send invoice"/>
+    <parallelGateway id="c01_join" name="Fulfillment join"/>
+    <endEvent id="c01_end" name="Order fulfilled"/>
+    <sequenceFlow id="c01_f01" sourceRef="c01_start" targetRef="c01_type"/>
+    <sequenceFlow id="c01_f02" sourceRef="c01_type" targetRef="c01_pack"/>
+    <sequenceFlow id="c01_f03" sourceRef="c01_type" targetRef="c01_customs"/>
+    <sequenceFlow id="c01_f04" sourceRef="c01_pack" targetRef="c01_label"/>
+    <sequenceFlow id="c01_f05" sourceRef="c01_customs" targetRef="c01_duty"/>
+    <sequenceFlow id="c01_f06" sourceRef="c01_label" targetRef="c01_merge"/>
+    <sequenceFlow id="c01_f07" sourceRef="c01_duty" targetRef="c01_merge"/>
+    <sequenceFlow id="c01_f08" sourceRef="c01_merge" targetRef="c01_fork"/>
+    <sequenceFlow id="c01_f09" sourceRef="c01_fork" targetRef="c01_ship"/>
+    <sequenceFlow id="c01_f10" sourceRef="c01_fork" targetRef="c01_invoice"/>
+    <sequenceFlow id="c01_f11" sourceRef="c01_ship" targetRef="c01_join"/>
+    <sequenceFlow id="c01_f12" sourceRef="c01_invoice" targetRef="c01_join"/>
+    <sequenceFlow id="c01_f13" sourceRef="c01_join" targetRef="c01_end"/>
+  </process>
+</definitions>

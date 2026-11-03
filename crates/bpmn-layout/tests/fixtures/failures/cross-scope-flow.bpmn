@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Fixture 10 (TEST-005, negative): a sequence flow in process `scope_cross_a` targets a node of
+     `scope_cross_b`; scopes must never be silently mixed. Expected: structured
+     `layout.cross_scope_flow`, no misleading DI, no panic. Project-owned (MIT). -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             id="definitions_10" targetNamespace="http://bpmn-viz.test/layout">
+  <process id="scope_cross_a">
+    <startEvent id="cross_a_start" name="Start A"/>
+    <endEvent id="cross_a_end" name="End A"/>
+    <sequenceFlow id="cross_f1" sourceRef="cross_a_start" targetRef="cross_b_end"/>
+  </process>
+  <process id="scope_cross_b">
+    <startEvent id="cross_b_start" name="Start B"/>
+    <endEvent id="cross_b_end" name="End B"/>
+    <sequenceFlow id="cross_f2" sourceRef="cross_b_start" targetRef="cross_b_end"/>
+  </process>
+</definitions>

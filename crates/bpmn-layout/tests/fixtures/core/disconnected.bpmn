@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Fixture 6 (TEST-005): disconnected components packed without overlap; the first component has no start event
+     (component start = earliest declared node without incoming flow). Project-owned (MIT). -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             id="definitions_6" targetNamespace="http://bpmn-viz.test/layout">
+  <process id="process_disconnected">
+    <task id="disc_orphan" name="Manual step"/>
+    <endEvent id="disc_orphan_end" name="Step done"/>
+    <startEvent id="disc_start" name="Timer"/>
+    <task id="disc_task" name="Scheduled job"/>
+    <endEvent id="disc_end" name="Job done"/>
+    <sequenceFlow id="disc_f1" sourceRef="disc_orphan" targetRef="disc_orphan_end"/>
+    <sequenceFlow id="disc_f2" sourceRef="disc_start" targetRef="disc_task"/>
+    <sequenceFlow id="disc_f3" sourceRef="disc_task" targetRef="disc_end"/>
+  </process>
+</definitions>

@@ -5,8 +5,8 @@ title: BPMN 2.0 Rust Parser and SVG/PNG Renderer Prototype
 status: proposed
 version: 0.1.0
 links:
-  decisions: [ADR-0001, ADR-0002, ADR-0003, ADR-0004, ADR-0005]
-  epics: [EPIC-001, EPIC-002, EPIC-003, EPIC-004]
+  decisions: [ADR-0001, ADR-0002, ADR-0003, ADR-0004, ADR-0005, ADR-0006, ADR-0007]
+  epics: [EPIC-001, EPIC-002, EPIC-003, EPIC-004, EPIC-005]
 ---
 
 # BPMN 2.0 Rust Parser and SVG/PNG Renderer — Prototype Specification
@@ -41,11 +41,11 @@ Build an MIT-licensed Rust workspace that reads BPMN 2.0 XML (`.bpmn`, `.bpmn20.
 
 ### P1 extension after prototype
 
-Boundary event variants; message/association flows; event markers; data objects; horizontal/vertical pools and lanes; subprocess markers; additional BPMN symbols, CSS-like theme options; streaming input; WASM integration, benchmark suite.
+Boundary event variants; message/association flows; event markers; data objects; horizontal/vertical pools and lanes; subprocess markers; additional BPMN symbols, CSS-like theme options; streaming input; WASM integration, benchmark suite; automatic layout of no-DI models (EPIC-005; ADR-0006/ADR-0007, `bpmn-layout` crate).
 
 ### Out of scope
 
-BPMN process execution engine; BPMN model editor; BPMN XML writer/roundtrip; BPMN XSD validation in full; automatic layout of no-DI diagrams; interactive canvas/DOM; guaranteed pixel-perfect match with Camunda/bpmn-js; PDF output; arbitrary embedded external resources.
+BPMN process execution engine; BPMN model editor; BPMN XML writer/roundtrip; BPMN XSD validation in full; interactive canvas/DOM; guaranteed pixel-perfect match with Camunda/bpmn-js; PDF output; arbitrary embedded external resources.
 
 ## 4. Target architecture
 
@@ -68,7 +68,7 @@ Each stage is independent and returns structured diagnostics. The semantic model
 | `bpmn-raster` | SVG-to-PNG rendering | `resvg` |
 | `bpmn-cli` | arguments, filesystem, output formats and errors | `clap`, `serde_json`, above crates |
 
-Keep `bpmn-layout` out of initial workspace; create it only once automatic layout is explicitly approved. `petgraph` is optional for later graph analysis and is not needed in first parsing/rendering path. `ebi_bpmn` should be evaluated in a spike but not hardwired: its focus is behavioral BPMN models, not full DI rendering.
+`bpmn-layout` was kept out of the initial workspace and is created only once automatic layout is explicitly approved — approved 2026-11-03 via ADR-0006/ADR-0007 under EPIC-005 (M1 scope, TEST-005). `petgraph` is optional for later graph analysis and is not needed in first parsing/rendering path. `ebi_bpmn` should be evaluated in a spike but not hardwired: its focus is behavioral BPMN models, not full DI rendering.
 
 ### Data model requirements
 

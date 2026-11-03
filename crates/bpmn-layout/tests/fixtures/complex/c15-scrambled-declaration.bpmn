@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Complex example 15: complex graph declared in scrambled order, flows interleaved with nodes. Project-owned (MIT). -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             id="definitions_c15" targetNamespace="http://bpmn-viz.test/complex">
+  <process id="process_c15">
+    <endEvent id="c15_end" name="Contract signed"/>
+    <sequenceFlow id="c15_f07" sourceRef="c15_legal_join" targetRef="c15_sign"/>
+    <task id="c15_sign" name="Sign contract"/>
+    <exclusiveGateway id="c15_legal_join" name="Legal cleared"/>
+    <task id="c15_draft" name="Draft contract"/>
+    <parallelGateway id="c15_fork" name="Review fork"/>
+    <sequenceFlow id="c15_f01" sourceRef="c15_start" targetRef="c15_draft"/>
+    <startEvent id="c15_start" name="Deal registered"/>
+    <task id="c15_finance" name="Finance review"/>
+    <task id="c15_tech" name="Technical review"/>
+    <sequenceFlow id="c15_f03" sourceRef="c15_draft" targetRef="c15_fork"/>
+    <task id="c15_negotiate" name="Negotiate terms"/>
+    <exclusiveGateway id="c15_review_ok" name="Reviews passed?"/>
+    <sequenceFlow id="c15_f05" sourceRef="c15_finance" targetRef="c15_review_ok"/>
+    <sequenceFlow id="c15_f02" sourceRef="c15_draft" targetRef="c15_negotiate"/>
+    <parallelGateway id="c15_join" name="Review join"/>
+    <sequenceFlow id="c15_f09" sourceRef="c15_review_ok" targetRef="c15_legal_join"/>
+    <task id="c15_redraft" name="Redraft problematic clauses"/>
+    <sequenceFlow id="c15_f10" sourceRef="c15_redraft" targetRef="c15_fork"/>
+    <sequenceFlow id="c15_f04" sourceRef="c15_fork" targetRef="c15_finance"/>
+    <sequenceFlow id="c15_f12" sourceRef="c15_sign" targetRef="c15_end"/>
+    <exclusiveGateway id="c15_final" name="Deal approved?"/>
+    <sequenceFlow id="c15_f11" sourceRef="c15_legal_join" targetRef="c15_final"/>
+    <sequenceFlow id="c15_f06" sourceRef="c15_tech" targetRef="c15_review_ok"/>
+    <sequenceFlow id="c15_f13" sourceRef="c15_final" targetRef="c15_redraft"/>
+    <sequenceFlow id="c15_f08" sourceRef="c15_review_ok" targetRef="c15_join"/>
+    <endEvent id="c15_end_lost" name="Deal lost"/>
+    <sequenceFlow id="c15_f14" sourceRef="c15_final" targetRef="c15_end_lost"/>
+    <sequenceFlow id="c15_f15" sourceRef="c15_negotiate" targetRef="c15_final"/>
+    <sequenceFlow id="c15_f16" sourceRef="c15_join" targetRef="c15_final"/>
+  </process>
+</definitions>

@@ -1,0 +1,131 @@
+{
+  "fixture": "loop-back-edge.bpmn",
+  "reference": {
+    "repository": "https://github.com/bpmn-io/bpmn-auto-layout",
+    "version": "2.0.0-alpha.2",
+    "commit": "75a7f30958c7050474d48db09afd4cc7d352ccad"
+  },
+  "shapes": [
+    {
+      "di": "BPMNShape_loop_check",
+      "bpmnElement": "loop_check",
+      "x": 416,
+      "y": 95,
+      "width": 50,
+      "height": 50
+    },
+    {
+      "di": "BPMNShape_loop_end",
+      "bpmnElement": "loop_end",
+      "x": 766,
+      "y": 102,
+      "width": 36,
+      "height": 36
+    },
+    {
+      "di": "BPMNShape_loop_notify",
+      "bpmnElement": "loop_notify",
+      "x": 566,
+      "y": 80,
+      "width": 100,
+      "height": 80
+    },
+    {
+      "di": "BPMNShape_loop_run",
+      "bpmnElement": "loop_run",
+      "x": 216,
+      "y": 80,
+      "width": 100,
+      "height": 80
+    },
+    {
+      "di": "BPMNShape_loop_start",
+      "bpmnElement": "loop_start",
+      "x": 80,
+      "y": 102,
+      "width": 36,
+      "height": 36
+    }
+  ],
+  "edges": [
+    {
+      "di": "BPMNEdge_loop_f1",
+      "bpmnElement": "loop_f1",
+      "waypoints": [
+        [
+          116,
+          120
+        ],
+        [
+          216,
+          120
+        ]
+      ]
+    },
+    {
+      "di": "BPMNEdge_loop_f2",
+      "bpmnElement": "loop_f2",
+      "waypoints": [
+        [
+          316,
+          120
+        ],
+        [
+          416,
+          120
+        ]
+      ]
+    },
+    {
+      "di": "BPMNEdge_loop_f3",
+      "bpmnElement": "loop_f3",
+      "waypoints": [
+        [
+          466,
+          120
+        ],
+        [
+          566,
+          120
+        ]
+      ]
+    },
+    {
+      "di": "BPMNEdge_loop_f4",
+      "bpmnElement": "loop_f4",
+      "waypoints": [
+        [
+          666,
+          120
+        ],
+        [
+          766,
+          120
+        ]
+      ]
+    },
+    {
+      "di": "BPMNEdge_loop_f5",
+      "bpmnElement": "loop_f5",
+      "waypoints": [
+        [
+          441,
+          145
+        ],
+        [
+          441,
+          180
+        ],
+        [
+          266,
+          180
+        ],
+        [
+          266,
+          160
+        ]
+      ]
+    }
+  ],
+  "warnings": []
+}

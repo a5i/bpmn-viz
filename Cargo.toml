@@ -16,6 +16,7 @@ bpmn-scene = { path = "crates/bpmn-scene" }
 bpmn-render = { path = "crates/bpmn-render" }
 bpmn-svg = { path = "crates/bpmn-svg" }
 bpmn-raster = { path = "crates/bpmn-raster" }
+bpmn-layout = { path = "crates/bpmn-layout" }
 
 quick-xml = "0.42"
 kurbo = "0.13"

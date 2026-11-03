@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Complex example 11: emergency bypass, parallel workup and admission vs discharge branches. Project-owned (MIT). -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             id="definitions_c11" targetNamespace="http://bpmn-viz.test/complex">
+  <process id="process_c11">
+    <startEvent id="c11_start" name="Patient arrives"/>
+    <task id="c11_register" name="Register patient"/>
+    <task id="c11_triage" name="Nurse triage"/>
+    <exclusiveGateway id="c11_emergency" name="Emergency case?"/>
+    <task id="c11_fasttrack" name="Fast-track to emergency unit"/>
+    <parallelGateway id="c11_fork" name="Clinical workup fork"/>
+    <task id="c11_vitals" name="Measure vital signs"/>
+    <task id="c11_history" name="Record medical history"/>
+    <parallelGateway id="c11_join" name="Clinical workup join"/>
+    <task id="c11_consult" name="Physician consultation"/>
+    <exclusiveGateway id="c11_admit" name="Admission required?"/>
+    <parallelGateway id="c11_adm_fork" name="Admission fork"/>
+    <task id="c11_ward" name="Assign ward and bed"/>
+    <task id="c11_records" name="Prepare admission records"/>
+    <parallelGateway id="c11_adm_join" name="Admission join"/>
+    <task id="c11_prescription" name="Issue prescription"/>
+    <task id="c11_followup" name="Schedule follow-up visit"/>
+    <endEvent id="c11_end_admitted" name="Patient admitted"/>
+    <endEvent id="c11_end_discharged" name="Patient discharged"/>
+    <endEvent id="c11_end_emergency" name="Emergency care started"/>
+    <sequenceFlow id="c11_f01" sourceRef="c11_start" targetRef="c11_register"/>
+    <sequenceFlow id="c11_f02" sourceRef="c11_register" targetRef="c11_triage"/>
+    <sequenceFlow id="c11_f03" sourceRef="c11_triage" targetRef="c11_emergency"/>
+    <sequenceFlow id="c11_f04" sourceRef="c11_emergency" targetRef="c11_fasttrack"/>
+    <sequenceFlow id="c11_f05" sourceRef="c11_fasttrack" targetRef="c11_end_emergency"/>
+    <sequenceFlow id="c11_f06" sourceRef="c11_emergency" targetRef="c11_fork"/>
+    <sequenceFlow id="c11_f07" sourceRef="c11_fork" targetRef="c11_vitals"/>
+    <sequenceFlow id="c11_f08" sourceRef="c11_fork" targetRef="c11_history"/>
+    <sequenceFlow id="c11_f09" sourceRef="c11_vitals" targetRef="c11_join"/>
+    <sequenceFlow id="c11_f10" sourceRef="c11_history" targetRef="c11_join"/>
+    <sequenceFlow id="c11_f11" sourceRef="c11_join" targetRef="c11_consult"/>
+    <sequenceFlow id="c11_f12" sourceRef="c11_consult" targetRef="c11_admit"/>
+    <sequenceFlow id="c11_f13" sourceRef="c11_admit" targetRef="c11_adm_fork"/>
+    <sequenceFlow id="c11_f14" sourceRef="c11_adm_fork" targetRef="c11_ward"/>
+    <sequenceFlow id="c11_f15" sourceRef="c11_adm_fork" targetRef="c11_records"/>
+    <sequenceFlow id="c11_f16" sourceRef="c11_ward" targetRef="c11_adm_join"/>
+    <sequenceFlow id="c11_f17" sourceRef="c11_records" targetRef="c11_adm_join"/>
+    <sequenceFlow id="c11_f18" sourceRef="c11_adm_join" targetRef="c11_end_admitted"/>
+    <sequenceFlow id="c11_f19" sourceRef="c11_admit" targetRef="c11_prescription"/>
+    <sequenceFlow id="c11_f20" sourceRef="c11_prescription" targetRef="c11_followup"/>
+    <sequenceFlow id="c11_f21" sourceRef="c11_followup" targetRef="c11_end_discharged"/>
+  </process>
+</definitions>

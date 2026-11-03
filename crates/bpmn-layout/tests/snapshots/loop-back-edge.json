@@ -1,0 +1,115 @@
+{
+  "edges": [
+    {
+      "bpmnElement": "loop_f1",
+      "waypoints": [
+        [
+          116.0,
+          120.0
+        ],
+        [
+          216.0,
+          120.0
+        ]
+      ]
+    },
+    {
+      "bpmnElement": "loop_f2",
+      "waypoints": [
+        [
+          316.0,
+          120.0
+        ],
+        [
+          416.0,
+          120.0
+        ]
+      ]
+    },
+    {
+      "bpmnElement": "loop_f3",
+      "waypoints": [
+        [
+          466.0,
+          120.0
+        ],
+        [
+          566.0,
+          120.0
+        ]
+      ]
+    },
+    {
+      "bpmnElement": "loop_f4",
+      "waypoints": [
+        [
+          666.0,
+          120.0
+        ],
+        [
+          766.0,
+          120.0
+        ]
+      ]
+    },
+    {
+      "bpmnElement": "loop_f5",
+      "waypoints": [
+        [
+          441.0,
+          145.0
+        ],
+        [
+          441.0,
+          180.0
+        ],
+        [
+          266.0,
+          180.0
+        ],
+        [
+          266.0,
+          160.0
+        ]
+      ]
+    }
+  ],
+  "shapes": [
+    {
+      "bpmnElement": "loop_check",
+      "height": 50.0,
+      "width": 50.0,
+      "x": 416.0,
+      "y": 95.0
+    },
+    {
+      "bpmnElement": "loop_end",
+      "height": 36.0,
+      "width": 36.0,
+      "x": 766.0,
+      "y": 102.0
+    },
+    {
+      "bpmnElement": "loop_notify",
+      "height": 80.0,
+      "width": 100.0,
+      "x": 566.0,
+      "y": 80.0
+    },
+    {
+      "bpmnElement": "loop_run",
+      "height": 80.0,
+      "width": 100.0,
+      "x": 216.0,
+      "y": 80.0
+    },
+    {
+      "bpmnElement": "loop_start",
+      "height": 36.0,
+      "width": 36.0,
+      "x": 80.0,
+      "y": 102.0
+    }
+  ],
+  "warnings": []
+}

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Complex example 8: rework loop with an early scrap exit and mid-flow end. Project-owned (MIT). -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             id="definitions_c08" targetNamespace="http://bpmn-viz.test/complex">
+  <process id="process_c08">
+    <startEvent id="c08_start" name="Batch started"/>
+    <task id="c08_produce" name="Produce batch"/>
+    <task id="c08_inspect" name="Quality inspection"/>
+    <exclusiveGateway id="c08_defect" name="Defect found?"/>
+    <task id="c08_rework" name="Rework defective units"/>
+    <exclusiveGateway id="c08_reworkok" name="Rework successful?"/>
+    <task id="c08_package" name="Package products"/>
+    <task id="c08_ship" name="Ship to distributor"/>
+    <endEvent id="c08_end_ok" name="Batch delivered"/>
+    <endEvent id="c08_end_scrap" name="Batch scrapped"/>
+    <sequenceFlow id="c08_f01" sourceRef="c08_start" targetRef="c08_produce"/>
+    <sequenceFlow id="c08_f02" sourceRef="c08_produce" targetRef="c08_inspect"/>
+    <sequenceFlow id="c08_f03" sourceRef="c08_inspect" targetRef="c08_defect"/>
+    <sequenceFlow id="c08_f04" sourceRef="c08_defect" targetRef="c08_rework"/>
+    <sequenceFlow id="c08_f05" sourceRef="c08_rework" targetRef="c08_reworkok"/>
+    <sequenceFlow id="c08_f06" sourceRef="c08_reworkok" targetRef="c08_inspect"/>
+    <sequenceFlow id="c08_f07" sourceRef="c08_reworkok" targetRef="c08_end_scrap"/>
+    <sequenceFlow id="c08_f08" sourceRef="c08_defect" targetRef="c08_package"/>
+    <sequenceFlow id="c08_f09" sourceRef="c08_package" targetRef="c08_ship"/>
+    <sequenceFlow id="c08_f10" sourceRef="c08_ship" targetRef="c08_end_ok"/>
+  </process>
+</definitions>

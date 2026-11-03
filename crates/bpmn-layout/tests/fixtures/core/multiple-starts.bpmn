@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Fixture 5 (TEST-005): two independent starts; stable declaration-order component stacking. Project-owned (MIT). -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             id="definitions_5" targetNamespace="http://bpmn-viz.test/layout">
+  <process id="process_multi_start">
+    <startEvent id="ms_start_a" name="Email arrived"/>
+    <task id="ms_task_a" name="Reply"/>
+    <endEvent id="ms_end_a" name="Replied"/>
+    <startEvent id="ms_start_b" name="Call arrived"/>
+    <task id="ms_task_b" name="Log call"/>
+    <endEvent id="ms_end_b" name="Logged"/>
+    <sequenceFlow id="ms_f1" sourceRef="ms_start_a" targetRef="ms_task_a"/>
+    <sequenceFlow id="ms_f2" sourceRef="ms_task_a" targetRef="ms_end_a"/>
+    <sequenceFlow id="ms_f3" sourceRef="ms_start_b" targetRef="ms_task_b"/>
+    <sequenceFlow id="ms_f4" sourceRef="ms_task_b" targetRef="ms_end_b"/>
+  </process>
+</definitions>

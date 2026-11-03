@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Complex example 12: AND fork with branches of very different lengths and an inner decision. Project-owned (MIT). -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             id="definitions_c12" targetNamespace="http://bpmn-viz.test/complex">
+  <process id="process_c12">
+    <startEvent id="c12_start" name="Request created"/>
+    <parallelGateway id="c12_fork" name="Work packages fork"/>
+    <task id="c12_a1" name="Package A step 1"/>
+    <task id="c12_a2" name="Package A step 2"/>
+    <task id="c12_a3" name="Package A step 3"/>
+    <task id="c12_b1" name="Package B step 1"/>
+    <exclusiveGateway id="c12_b_dec" name="Package B variant?"/>
+    <task id="c12_b2a" name="Package B variant 1"/>
+    <task id="c12_b2b" name="Package B variant 2"/>
+    <task id="c12_c1" name="Package C step 1"/>
+    <parallelGateway id="c12_join" name="Work packages join"/>
+    <exclusiveGateway id="c12_final" name="Result acceptable?"/>
+    <task id="c12_fix" name="Fix defects"/>
+    <endEvent id="c12_end" name="Request fulfilled"/>
+    <sequenceFlow id="c12_f01" sourceRef="c12_start" targetRef="c12_fork"/>
+    <sequenceFlow id="c12_f02" sourceRef="c12_fork" targetRef="c12_a1"/>
+    <sequenceFlow id="c12_f03" sourceRef="c12_fork" targetRef="c12_b1"/>
+    <sequenceFlow id="c12_f04" sourceRef="c12_fork" targetRef="c12_c1"/>
+    <sequenceFlow id="c12_f05" sourceRef="c12_a1" targetRef="c12_a2"/>
+    <sequenceFlow id="c12_f06" sourceRef="c12_a2" targetRef="c12_a3"/>
+    <sequenceFlow id="c12_f07" sourceRef="c12_b1" targetRef="c12_b_dec"/>
+    <sequenceFlow id="c12_f08" sourceRef="c12_b_dec" targetRef="c12_b2a"/>
+    <sequenceFlow id="c12_f09" sourceRef="c12_b_dec" targetRef="c12_b2b"/>
+    <sequenceFlow id="c12_f10" sourceRef="c12_a3" targetRef="c12_join"/>
+    <sequenceFlow id="c12_f11" sourceRef="c12_b2a" targetRef="c12_join"/>
+    <sequenceFlow id="c12_f12" sourceRef="c12_b2b" targetRef="c12_join"/>
+    <sequenceFlow id="c12_f13" sourceRef="c12_c1" targetRef="c12_join"/>
+    <sequenceFlow id="c12_f14" sourceRef="c12_join" targetRef="c12_final"/>
+    <sequenceFlow id="c12_f15" sourceRef="c12_final" targetRef="c12_fix"/>
+    <sequenceFlow id="c12_f16" sourceRef="c12_fix" targetRef="c12_fork"/>
+    <sequenceFlow id="c12_f17" sourceRef="c12_final" targetRef="c12_end"/>
+  </process>
+</definitions>

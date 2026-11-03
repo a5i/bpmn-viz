@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Complex example 13: two successive explore/decide diamonds with iteration loops. The iterate task also reaches the cancel end so its band differs from the spine plan row; the original loop-only topology exposed a route_feedback leg limitation (RoutingFailed, see gallery note). Project-owned (MIT). -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             id="definitions_c13" targetNamespace="http://bpmn-viz.test/complex">
+  <process id="process_c13">
+    <startEvent id="c13_start" name="Project kickoff"/>
+    <parallelGateway id="c13_d1_fork" name="Explore phase fork"/>
+    <task id="c13_research" name="Market research"/>
+    <task id="c13_interviews" name="User interviews"/>
+    <task id="c13_analytics" name="Analytics review"/>
+    <parallelGateway id="c13_d1_join" name="Explore phase join"/>
+    <exclusiveGateway id="c13_insight" name="Insights conclusive?"/>
+    <task id="c13_more" name="Schedule additional research"/>
+    <parallelGateway id="c13_d2_fork" name="Develop phase fork"/>
+    <task id="c13_prototype" name="Build prototype"/>
+    <task id="c13_copy" name="Draft launch copy"/>
+    <parallelGateway id="c13_d2_join" name="Develop phase join"/>
+    <exclusiveGateway id="c13_gate" name="Gate review passed?"/>
+    <task id="c13_iterate" name="Iterate on concept"/>
+    <task id="c13_plan" name="Plan launch"/>
+    <endEvent id="c13_end_launch" name="Launch approved"/>
+    <endEvent id="c13_end_cancel" name="Project cancelled"/>
+    <sequenceFlow id="c13_f01" sourceRef="c13_start" targetRef="c13_d1_fork"/>
+    <sequenceFlow id="c13_f02" sourceRef="c13_d1_fork" targetRef="c13_research"/>
+    <sequenceFlow id="c13_f03" sourceRef="c13_d1_fork" targetRef="c13_interviews"/>
+    <sequenceFlow id="c13_f04" sourceRef="c13_d1_fork" targetRef="c13_analytics"/>
+    <sequenceFlow id="c13_f05" sourceRef="c13_research" targetRef="c13_d1_join"/>
+    <sequenceFlow id="c13_f06" sourceRef="c13_interviews" targetRef="c13_d1_join"/>
+    <sequenceFlow id="c13_f07" sourceRef="c13_analytics" targetRef="c13_d1_join"/>
+    <sequenceFlow id="c13_f08" sourceRef="c13_d1_join" targetRef="c13_insight"/>
+    <sequenceFlow id="c13_f09" sourceRef="c13_insight" targetRef="c13_more"/>
+    <sequenceFlow id="c13_f10" sourceRef="c13_more" targetRef="c13_d1_fork"/>
+    <sequenceFlow id="c13_f11" sourceRef="c13_insight" targetRef="c13_d2_fork"/>
+    <sequenceFlow id="c13_f12" sourceRef="c13_d2_fork" targetRef="c13_prototype"/>
+    <sequenceFlow id="c13_f13" sourceRef="c13_d2_fork" targetRef="c13_copy"/>
+    <sequenceFlow id="c13_f14" sourceRef="c13_prototype" targetRef="c13_d2_join"/>
+    <sequenceFlow id="c13_f15" sourceRef="c13_copy" targetRef="c13_d2_join"/>
+    <sequenceFlow id="c13_f16" sourceRef="c13_d2_join" targetRef="c13_gate"/>
+    <sequenceFlow id="c13_f17" sourceRef="c13_gate" targetRef="c13_iterate"/>
+    <sequenceFlow id="c13_f18" sourceRef="c13_iterate" targetRef="c13_d2_fork"/>
+    <sequenceFlow id="c13_f19" sourceRef="c13_gate" targetRef="c13_plan"/>
+    <sequenceFlow id="c13_f20" sourceRef="c13_plan" targetRef="c13_end_launch"/>
+    <sequenceFlow id="c13_f21" sourceRef="c13_gate" targetRef="c13_end_cancel"/>
+  </process>
+</definitions>
