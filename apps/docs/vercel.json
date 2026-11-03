@@ -1,0 +1,5 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "npm ci && npm --prefix ../../crates/bpmn-wasm ci",
+  "buildCommand": "bash scripts/vercel-build.sh"
+}

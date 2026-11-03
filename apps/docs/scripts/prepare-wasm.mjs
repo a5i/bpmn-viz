@@ -2,8 +2,10 @@ import { cp, mkdir, rm, stat } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-// apps/docs lives three levels below the repository root; the committed
-// wasm-pack `web` artifact (ADR-0009, TASK-020) is the playground engine.
+// apps/docs lives three levels below the repository root; the wasm-pack
+// `web` artifact (ADR-0009, TASK-020) is the playground engine. It is a
+// build output and is never committed: built in CI, locally, and on Vercel
+// (see scripts/vercel-build.sh, which bootstraps the Rust toolchain).
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const source = join(repoRoot, "crates", "bpmn-wasm", "pkg-web");
 const destination = new URL("../public/runtime/", import.meta.url);
