@@ -1,0 +1,53 @@
+schemaVersion: 1
+documentType: specification
+identity:
+  field: frontMatter.id
+  uniqueWithin: workspace
+frontMatter:
+  type: object
+  required: [id, type, title, status, version, links]
+  additionalProperties: false
+  properties:
+    id:
+      type: string
+      pattern: "^SPEC-[0-9]{3}$"
+    type:
+      enum: [specification]
+    title:
+      type: string
+      minLength: 1
+    status:
+      enum: [proposed, approved, implemented, deprecated]
+    version:
+      type: string
+    links:
+      type: object
+      additionalProperties: false
+      properties:
+        decisions:
+          type: array
+          items:
+            type: string
+        epics:
+          type: array
+          items:
+            type: string
+relations:
+  - from: frontMatter.links.decisions
+    targetType: adr
+    mustExist: true
+  - from: frontMatter.links.epics
+    targetType: epic
+    mustExist: true
+body:
+  sections:
+    - pattern: "^BPMN 2\\.0 Rust Parser and SVG/PNG Renderer.*"
+      level: 1
+      children:
+        sections:
+          - pattern: "^[0-9]+\\. .+"
+            nonEmpty: false
+            min: 16
+            max: 16
+            children:
+              additionalSections: true

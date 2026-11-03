@@ -1,0 +1,46 @@
+schemaVersion: 1
+documentType: report
+identity:
+  field: frontMatter.id
+  uniqueWithin: workspace
+frontMatter:
+  type: object
+  required: [id, type, title, status, relations]
+  additionalProperties: false
+  properties:
+    id:
+      type: string
+      pattern: "^REPORT-[0-9]{3}$"
+    type:
+      enum: [report]
+    title:
+      type: string
+      minLength: 1
+    status:
+      enum: [draft, final]
+    relations:
+      type: object
+      additionalProperties: false
+      properties:
+        based_on:
+          type: array
+          items:
+            type: string
+relations:
+  - from: frontMatter.relations.based_on
+    targetTypes: [test_plan, epic]
+    mustExist: true
+body:
+  sections:
+    - titleEquals: frontMatter.title
+      level: 1
+      children:
+        sections:
+          - title: Method
+            nonEmpty: true
+          - title: Results
+            nonEmpty: true
+          - title: Gaps
+            nonEmpty: true
+          - title: Next Actions
+            nonEmpty: true

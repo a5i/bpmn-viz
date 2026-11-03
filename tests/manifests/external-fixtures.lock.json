@@ -3,10 +3,21 @@
     {
       "name": "BPMN MIWG Test Suite",
       "url": "https://github.com/bpmn-miwg/bpmn-miwg-test-suite",
-      "revision": null,
+      "revision": "85240b8689d835d8bd1a96fbea6af46558ca0568",
+      "revision_date": "2026-10-18",
       "license": "CC-BY-3.0",
+      "attribution": "BPMN Model Interchange Working Group (MIWG) test suite; files are not redistributed with this repository.",
       "selected_cases": ["A.1.0", "A.2.0", "A.3.0", "A.4.0", "A.4.1", "C.4.0", "C.8.0"],
-      "note": "Set revision and checksums before invoking download script."
+      "files": {
+        "A_1_0.bpmn": "be6a37ead9860ba929c66e51640fb3e6300865c499aabde9ab6752dda1aa9795",
+        "A_2_0.bpmn": "5f824e7616dfcd9e562252247d186971709cdcbd3b61f967b918e499257240b6",
+        "A_3_0.bpmn": "eb9ddc217212014b9c158e2f785fedd11f52c2d9fc2577195e50d587f1e0a2ad",
+        "A_4_0.bpmn": "45966eb46eefe3c8aea3da98931c3494740e206beada06afc6b92a197f6ad0fd",
+        "A_4_1.bpmn": "99546cb45a277e0cbf8c32f196628925d06fb963738d824f428e1d6849918840",
+        "C_4_0.bpmn": "7edfadee4c488f7192bca9313613e2b3fb14634c073bc9d759823d0cc8a7faf7",
+        "C_8_0.bpmn": "464bf6dd4e89a7a0e125cefe9feef0eaef7018fee5867ed20111323cda2f7981"
+      },
+      "note": "Files download from Reference/<case>.bpmn at the pinned revision into gitignored external/. Verify with sha256sum -c after download."
     }
   ]
 }

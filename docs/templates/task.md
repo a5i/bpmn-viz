@@ -8,11 +8,15 @@ relations:
   implements: [SPEC-001]
   decisions: []
 ---
-# Task title
+# Replace with task title
 
 ## Goal
 
+Describe the outcome this task delivers.
+
 ## Implementation
+
+Summarize the approach and the affected crates.
 
 ## Acceptance Criteria
 
@@ -20,7 +24,7 @@ relations:
 
 ## Verification
 
-- Test commands and results.
+- Test commands and their results.
 
 ## Done
 

@@ -1,0 +1,20 @@
+# DocVera workspace configuration (verified against docvera 0.1.2; EXP-003).
+# Markdown stays authoritative; `docvera check` is the CI validation gate.
+version = 1
+include = ["docs/**/*.md"]
+
+[schemas]
+"docs/specifications/*.md" = "docs/docvera/schemas/specification.yaml"
+"docs/adr/*.md" = "docs/docvera/schemas/adr.yaml"
+"docs/epics/*.md" = "docs/docvera/schemas/epic.yaml"
+"docs/tasks/*.md" = "docs/docvera/schemas/task.yaml"
+"docs/experiments/*.md" = "docs/docvera/schemas/experiment.yaml"
+"docs/testing/*.md" = "docs/docvera/schemas/test-plan.yaml"
+"docs/reports/*.md" = "docs/docvera/schemas/report.yaml"
+"docs/risks/*.md" = "docs/docvera/schemas/risk.yaml"
+"docs/index.md" = "docs/docvera/schemas/guide.yaml"
+"docs/architecture/*.md" = "docs/docvera/schemas/note.yaml"
+"docs/guides/*.md" = "docs/docvera/schemas/note.yaml"
+"docs/docvera/*.md" = "docs/docvera/schemas/note.yaml"
+"docs/templates/adr.md" = "docs/docvera/schemas/adr.yaml"
+"docs/templates/task.md" = "docs/docvera/schemas/task.yaml"

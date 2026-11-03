@@ -1,0 +1,67 @@
+schemaVersion: 1
+documentType: task
+identity:
+  field: frontMatter.id
+  uniqueWithin: workspace
+frontMatter:
+  type: object
+  required: [id, type, title, status, relations]
+  additionalProperties: false
+  properties:
+    id:
+      type: string
+      pattern: "^TASK-[0-9]{3}$"
+    type:
+      enum: [task]
+    title:
+      type: string
+      minLength: 1
+    status:
+      enum: [backlog, ready, in_progress, review, done, cancelled, blocked]
+    relations:
+      type: object
+      additionalProperties: false
+      properties:
+        parent:
+          type: string
+        implements:
+          type: array
+          items:
+            type: string
+        decisions:
+          type: array
+          items:
+            type: string
+        verified_by:
+          type: array
+          items:
+            type: string
+relations:
+  - from: frontMatter.relations.parent
+    targetType: epic
+    mustExist: true
+  - from: frontMatter.relations.implements
+    targetType: specification
+    mustExist: true
+  - from: frontMatter.relations.decisions
+    targetType: adr
+    mustExist: true
+  - from: frontMatter.relations.verified_by
+    targetType: test_plan
+    mustExist: true
+body:
+  sections:
+    - titleEquals: frontMatter.title
+      level: 1
+      children:
+        sections:
+          - title: Goal
+            nonEmpty: true
+          - title: Implementation
+            nonEmpty: true
+          - title: Acceptance Criteria
+            min: 0
+          - title: Verification
+            nonEmpty: true
+          - title: Done
+            nonEmpty: true

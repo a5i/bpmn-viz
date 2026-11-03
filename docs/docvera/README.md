@@ -1,15 +1,38 @@
+---
+id: DOC-002
+type: note
+title: DocVera integration contract
+status: active
+---
 # DocVera integration contract
 
-**Verified:** `@a5i/docvera` is described as a schema-validated, queryable Markdown engine.
+**Verified** (EXP-003): `docvera 0.1.2` installed locally; upstream repository `a5i/docvera`, CLI on crates.io as `docvera-cli`, npm addon as `@a5i/docvera`. This workspace uses `docvera.toml` (config `version = 1`) with nine document schemas under `docs/docvera/schemas/` and validates with `docvera check` (exit 0 = clean, 1 = findings, 2 = operational error).
 
-**Unverified:** CLI flags, schema dialect, lifecycle hooks, relation constraints, executable interface, runtime configuration. Do not treat the frontmatter examples as validated configuration.
+## What is enforced
 
-## Required integration
+- Front matter: JSON Schema per document type — id patterns (`SPEC-NNN`, `ADR-NNNN`, `EPIC-NNN`, `TASK-NNN`, `EXP-NNN`, `TEST-NNN`, `REPORT-NNN`, `RISK-NNN`, `DOC-NNN`), type/status enums, `additionalProperties: false`.
+- Identity: every type has `identity.field: frontMatter.id` with `uniqueWithin: workspace`.
+- Typed relations: `SPEC.links.decisions → adr`, `TASK.parent → epic`, `ADR.implements → specification`, `RISK.mitigated_by → adr`, and so on, with `mustExist: true`.
+- Body structure: mandatory sections per SPEC-001 section 12 (ADR: Context/Decision/Alternatives Considered/Consequences/Validation/References; TASK: Goal/Implementation/Verification/Done; and so on), with H1 equality against `frontMatter.title`.
 
-1. Discover exact installed CLI API and docs. Record versions and observations in `EXP-003`.
-2. Define types `specification`, `adr`, `epic`, `task`, `experiment`, `test_plan`, `report`, `risk`.
-3. Validate required sections, unique IDs, allowed statuses, links and transitions.
-4. Add a version-checked `scripts/docvera-check.sh` only after command verification.
-5. Wire this check into CI after successful local execution.
+## Known gaps (documented, not guessed)
 
-Sample [frontmatter and relationships](../specifications/SPEC-001-bpmn-renderer.md#12-docvera-documentation-as-code-and-work-management).
+- Lifecycle **transitions** (proposed → accepted, backlog → done) are plain enum values in the engine; transition discipline is review-enforced, with SHACL policies (`[validation.shacl]`) as a future upgrade path (REPORT-001 next actions).
+- `nonEmpty` checks direct section content only; the specification schema therefore relies on presence counts for numbered sections.
+- The engine has no Git hooks integration; CI runs `scripts/docvera-check.sh` per push instead.
+
+## Sample front matter (validated shape)
+
+```yaml
+---
+id: ADR-0002
+type: adr
+title: Separate semantic, DI and scene models
+status: accepted
+created: 2026-11-02
+relations:
+  implements: [SPEC-001]
+  informed_by: [EXP-001]
+  supersedes: []
+---
+```

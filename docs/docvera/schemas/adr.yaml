@@ -1,0 +1,66 @@
+schemaVersion: 1
+documentType: adr
+identity:
+  field: frontMatter.id
+  uniqueWithin: workspace
+frontMatter:
+  type: object
+  required: [id, type, title, status, created, relations]
+  additionalProperties: false
+  properties:
+    id:
+      type: string
+      pattern: "^ADR-[0-9]{4}$"
+    type:
+      enum: [adr]
+    title:
+      type: string
+      minLength: 1
+    status:
+      enum: [proposed, accepted, superseded, rejected]
+    created:
+      type: string
+    relations:
+      type: object
+      additionalProperties: false
+      properties:
+        implements:
+          type: array
+          items:
+            type: string
+        supersedes:
+          type: array
+          items:
+            type: string
+        informed_by:
+          type: array
+          items:
+            type: string
+relations:
+  - from: frontMatter.relations.implements
+    targetType: specification
+    mustExist: true
+  - from: frontMatter.relations.supersedes
+    targetType: adr
+    mustExist: true
+  - from: frontMatter.relations.informed_by
+    targetType: experiment
+    mustExist: true
+body:
+  sections:
+    - titleEquals: frontMatter.title
+      level: 1
+      children:
+        sections:
+          - title: Context
+            nonEmpty: true
+          - title: Decision
+            nonEmpty: true
+          - title: Alternatives Considered
+            nonEmpty: true
+          - title: Consequences
+            nonEmpty: true
+          - title: Validation
+            nonEmpty: true
+          - title: References
+            nonEmpty: true

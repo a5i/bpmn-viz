@@ -1,0 +1,29 @@
+[package]
+name = "bpmn-fuzz"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[package.metadata]
+notes = "Not part of the workspace build; run with cargo-fuzz on nightly."
+
+[dependencies]
+libfuzzer-sys = "0.4"
+bpmn-xml = { path = "../crates/bpmn-xml" }
+bpmn-render = { path = "../crates/bpmn-render" }
+bpmn-svg = { path = "../crates/bpmn-svg" }
+bpmn-raster = { path = "../crates/bpmn-raster" }
+
+[[bin]]
+name = "xml_parse"
+path = "fuzz_targets/xml_parse.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "render_document"
+path = "fuzz_targets/render_document.rs"
+test = false
+doc = false
+bench = false

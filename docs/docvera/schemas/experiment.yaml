@@ -1,0 +1,53 @@
+schemaVersion: 1
+documentType: experiment
+identity:
+  field: frontMatter.id
+  uniqueWithin: workspace
+frontMatter:
+  type: object
+  required: [id, type, title, status, relations]
+  additionalProperties: false
+  properties:
+    id:
+      type: string
+      pattern: "^EXP-[0-9]{3}$"
+    type:
+      enum: [experiment]
+    title:
+      type: string
+      minLength: 1
+    status:
+      enum: [planned, running, concluded]
+    relations:
+      type: object
+      additionalProperties: false
+      properties:
+        informs:
+          type: array
+          items:
+            type: string
+        decides:
+          type: array
+          items:
+            type: string
+relations:
+  - from: frontMatter.relations.informs
+    targetType: specification
+    mustExist: true
+  - from: frontMatter.relations.decides
+    targetType: adr
+    mustExist: true
+body:
+  sections:
+    - titleEquals: frontMatter.title
+      level: 1
+      children:
+        sections:
+          - title: Hypothesis
+            nonEmpty: true
+          - title: Setup
+            nonEmpty: true
+          - title: Results
+            nonEmpty: true
+          - title: Conclusion
+            nonEmpty: true

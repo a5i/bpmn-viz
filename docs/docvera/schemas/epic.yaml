@@ -1,0 +1,53 @@
+schemaVersion: 1
+documentType: epic
+identity:
+  field: frontMatter.id
+  uniqueWithin: workspace
+frontMatter:
+  type: object
+  required: [id, type, title, status, relations]
+  additionalProperties: false
+  properties:
+    id:
+      type: string
+      pattern: "^EPIC-[0-9]{3}$"
+    type:
+      enum: [epic]
+    title:
+      type: string
+      minLength: 1
+    status:
+      enum: [backlog, ready, in_progress, review, done, cancelled, blocked]
+    relations:
+      type: object
+      additionalProperties: false
+      properties:
+        implements:
+          type: array
+          items:
+            type: string
+        children:
+          type: array
+          items:
+            type: string
+relations:
+  - from: frontMatter.relations.implements
+    targetType: specification
+    mustExist: true
+  - from: frontMatter.relations.children
+    targetType: task
+    mustExist: true
+body:
+  sections:
+    - titleEquals: frontMatter.title
+      level: 1
+      children:
+        sections:
+          - title: Outcome
+            nonEmpty: true
+          - title: Scope
+            nonEmpty: true
+          - title: Acceptance Criteria
+            nonEmpty: true
+          - title: Tasks
+            nonEmpty: true

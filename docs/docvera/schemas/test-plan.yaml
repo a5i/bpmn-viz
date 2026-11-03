@@ -1,0 +1,60 @@
+schemaVersion: 1
+documentType: test_plan
+identity:
+  field: frontMatter.id
+  uniqueWithin: workspace
+frontMatter:
+  type: object
+  required: [id, type, title, status, relations]
+  additionalProperties: false
+  properties:
+    id:
+      type: string
+      pattern: "^TEST-[0-9]{3}$"
+    type:
+      enum: [test_plan]
+    title:
+      type: string
+      minLength: 1
+    status:
+      enum: [draft, active, retired]
+    relations:
+      type: object
+      additionalProperties: false
+      properties:
+        specifies:
+          type: array
+          items:
+            type: string
+        verifies:
+          type: array
+          items:
+            type: string
+        produces:
+          type: array
+          items:
+            type: string
+relations:
+  - from: frontMatter.relations.specifies
+    targetType: specification
+    mustExist: true
+  - from: frontMatter.relations.verifies
+    targetType: task
+    mustExist: true
+  - from: frontMatter.relations.produces
+    targetType: report
+    mustExist: true
+body:
+  sections:
+    - titleEquals: frontMatter.title
+      level: 1
+      children:
+        sections:
+          - title: Fixtures
+            nonEmpty: true
+          - title: Assertions
+            nonEmpty: true
+          - title: Coverage
+            nonEmpty: true
+          - title: Exit Criteria
+            nonEmpty: true

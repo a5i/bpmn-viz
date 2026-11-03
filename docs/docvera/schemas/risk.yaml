@@ -1,0 +1,55 @@
+schemaVersion: 1
+documentType: risk
+identity:
+  field: frontMatter.id
+  uniqueWithin: workspace
+frontMatter:
+  type: object
+  required: [id, type, title, status, relations]
+  additionalProperties: false
+  properties:
+    id:
+      type: string
+      pattern: "^RISK-[0-9]{3}$"
+    type:
+      enum: [risk]
+    title:
+      type: string
+      minLength: 1
+    status:
+      enum: [open, mitigated, closed]
+    relations:
+      type: object
+      additionalProperties: false
+      properties:
+        addresses:
+          type: array
+          items:
+            type: string
+        mitigated_by:
+          type: array
+          items:
+            type: string
+relations:
+  - from: frontMatter.relations.addresses
+    targetType: specification
+    mustExist: true
+  - from: frontMatter.relations.mitigated_by
+    targetType: adr
+    mustExist: true
+body:
+  sections:
+    - titleEquals: frontMatter.title
+      level: 1
+      children:
+        sections:
+          - title: Description
+            nonEmpty: true
+          - title: Likelihood
+            nonEmpty: true
+          - title: Impact
+            nonEmpty: true
+          - title: Mitigation
+            nonEmpty: true
+          - title: Outcome
+            min: 0

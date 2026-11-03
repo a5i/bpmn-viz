@@ -1,0 +1,24 @@
+schemaVersion: 1
+documentType: guide
+identity:
+  field: frontMatter.id
+  uniqueWithin: workspace
+frontMatter:
+  type: object
+  required: [id, type, title, status]
+  additionalProperties: false
+  properties:
+    id:
+      type: string
+      pattern: "^DOC-[0-9]{3}$"
+    type:
+      enum: [guide]
+    title:
+      type: string
+      minLength: 1
+    status:
+      enum: [active, deprecated]
+body:
+  sections:
+    - title: Documentation index
+      nonEmpty: true
