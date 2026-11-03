@@ -113,6 +113,7 @@ version = "0.1.0"
 name = "bpmn-raster"
 version = "0.1.0"
 dependencies = [
+ "bpmn-model",
  "bpmn-scene",
  "resvg",
  "thiserror",

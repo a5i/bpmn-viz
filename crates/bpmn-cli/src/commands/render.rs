@@ -54,7 +54,10 @@ pub(crate) fn run(command: &RenderCommand) -> Result<ExitCode, CliError> {
                 scale: command.scale.unwrap_or(1.0),
                 ..PngOptions::default()
             };
-            bpmn_raster::render_png(&svg, &options).map_err(|error| raster_error_to_cli(&error))?
+            let png = bpmn_raster::render_png_with_diagnostics(&svg, &options)
+                .map_err(|error| raster_error_to_cli(&error))?;
+            warnings.extend(png.diagnostics.iter().cloned());
+            png.bytes
         }
     };
 

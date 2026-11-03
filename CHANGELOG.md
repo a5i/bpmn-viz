@@ -15,3 +15,9 @@ All notable changes to this project are documented here. Format based on [Keep a
 - `bpmn-raster`: resvg-based PNG export with scale validation and pixel budgets.
 - `bpmn-cli`: `render`, `inspect`, `validate` with documented exit codes (0/2/3/4/5), text and JSON diagnostics, atomic writes, diagram selection by index or id.
 - Test suite: 18 suites (90+ tests) with committed golden SVG, MIWG smoke against pinned external fixtures, fuzz harnesses, and DocVera-validated documentation set (SPEC/ADR/EPIC/TASK/EXP/TEST/REPORT/RISK).
+
+### Fixed
+
+- `bpmn-raster`: PNG text no longer silently disappears when DejaVu Sans is absent; `sans-serif`/`serif` resolve over installed fonts with a preferred fallback chain, substitution and missing fonts are reported as `raster.font_substituted`/`raster.missing_fonts` warnings via the new `render_png_with_diagnostics` (TASK-017).
+- `bpmn-render`: the diagram viewport now unions DI `BPMNLabel` bounds, so labels placed outside their shape (MIWG A.1.0 "Start Event") are no longer clipped in SVG/PNG output (TASK-017).
+- `bpmn-model`: diagnostic codes `raster.missing_fonts` and `raster.font_substituted` (TASK-017).

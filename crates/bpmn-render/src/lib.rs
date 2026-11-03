@@ -164,4 +164,67 @@ mod tests {
             Err(RenderError::EmptyDiagram)
         ));
     }
+    const EXTERNAL_LABELS: &str = r#"<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+        xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+        xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+        xmlns:di="http://www.omg.org/spec/DD/20100524/DI">
+  <process id="P">
+    <startEvent id="S" name="Start Event"/>
+    <endEvent id="E"/>
+    <sequenceFlow id="F" sourceRef="S" targetRef="E" name="to end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="D"><bpmndi:BPMNPlane id="Pl" bpmnElement="P">
+    <bpmndi:BPMNShape id="sS" bpmnElement="S"><dc:Bounds x="100" y="50" width="36" height="36"/>
+      <bpmndi:BPMNLabel><dc:Bounds x="40" y="90" width="70" height="12"/></bpmndi:BPMNLabel>
+    </bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="sE" bpmnElement="E"><dc:Bounds x="300" y="50" width="36" height="36"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNEdge id="eF" bpmnElement="F">
+      <di:waypoint x="136" y="68"/><di:waypoint x="300" y="68"/>
+      <bpmndi:BPMNLabel><dc:Bounds x="150" y="30" width="40" height="12"/></bpmndi:BPMNLabel>
+    </bpmndi:BPMNEdge>
+  </bpmndi:BPMNPlane></bpmndi:BPMNDiagram>
+</definitions>"#;
+
+    #[test]
+    fn viewport_includes_out_of_bounds_di_labels() {
+        // MIWG A.1.0 regression (TASK-017): exporters may place BPMNLabel
+        // bounds outside every shape; the viewport must cover them or the
+        // SVG/PNG clips the text.
+        let document = from_xml(EXTERNAL_LABELS.as_bytes()).unwrap();
+        let diagram = document.first_diagram().unwrap();
+        let viewport = diagram_viewport(diagram);
+        // Shape-only union is x 100..336, y 50..86; labels reach x=40,
+        // y=30 (edge label) and y=102 (shape label bottom).
+        assert!(viewport.x <= 40.0, "min x {}, expected <= 40", viewport.x);
+        assert!(viewport.y <= 30.0, "min y {}, expected <= 30", viewport.y);
+        assert!(
+            viewport.x + viewport.width >= 110.0,
+            "max x {}, expected >= 110",
+            viewport.x + viewport.width
+        );
+        assert!(
+            viewport.y + viewport.height >= 102.0,
+            "max y {}, expected >= 102",
+            viewport.y + viewport.height
+        );
+    }
+
+    #[test]
+    fn viewport_ignores_invalid_label_bounds() {
+        let document = from_xml(
+            EXTERNAL_LABELS
+                .replace(
+                    "<dc:Bounds x=\"40\" y=\"90\" width=\"70\" height=\"12\"/>",
+                    "<dc:Bounds x=\"40\" y=\"90\" width=\"0\" height=\"12\"/>",
+                )
+                .as_bytes(),
+        )
+        .unwrap();
+        let diagram = document.first_diagram().unwrap();
+        let viewport = diagram_viewport(diagram);
+        // The invalid shape label must not extend the viewport to x=40; the
+        // valid edge label (x 150..190, y 30..42) still does.
+        assert!(viewport.x > 40.0, "min x {}, expected > 40", viewport.x);
+        assert!(viewport.y <= 30.0, "min y {}, expected <= 30", viewport.y);
+    }
 }

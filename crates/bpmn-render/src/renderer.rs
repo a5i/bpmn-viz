@@ -138,6 +138,19 @@ pub fn union_viewport(diagram: &Diagram) -> Viewport {
         min_y = min_y.min(shape.bounds.y);
         max_x = max_x.max(shape.bounds.x + shape.bounds.width);
         max_y = max_y.max(shape.bounds.y + shape.bounds.height);
+        // DI label bounds may sit outside their shape (exporters place labels
+        // freely); include them so labels are never clipped by the viewport.
+        if let Some(bounds) = shape
+            .label
+            .as_ref()
+            .and_then(|label| label.bounds)
+            .filter(|bounds| bounds.is_valid())
+        {
+            min_x = min_x.min(bounds.x);
+            min_y = min_y.min(bounds.y);
+            max_x = max_x.max(bounds.x + bounds.width);
+            max_y = max_y.max(bounds.y + bounds.height);
+        }
     }
     for edge in &diagram.plane.edges {
         for point in &edge.waypoints {
@@ -145,6 +158,17 @@ pub fn union_viewport(diagram: &Diagram) -> Viewport {
             min_y = min_y.min(point.y);
             max_x = max_x.max(point.x);
             max_y = max_y.max(point.y);
+        }
+        if let Some(bounds) = edge
+            .label
+            .as_ref()
+            .and_then(|label| label.bounds)
+            .filter(|bounds| bounds.is_valid())
+        {
+            min_x = min_x.min(bounds.x);
+            min_y = min_y.min(bounds.y);
+            max_x = max_x.max(bounds.x + bounds.width);
+            max_y = max_y.max(bounds.y + bounds.height);
         }
     }
     if !min_x.is_finite() || !min_y.is_finite() || !max_x.is_finite() || !max_y.is_finite() {

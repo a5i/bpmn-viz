@@ -70,6 +70,10 @@ pub enum DiagnosticCode {
     UnsupportedSymbol,
     /// An element outside the supported subset was ignored during import.
     IgnoredElement,
+    /// No usable fonts were found, so rasterized text would be dropped.
+    RasterMissingFonts,
+    /// A preferred raster font was not installed and another was used.
+    RasterFontSubstituted,
 }
 
 impl DiagnosticCode {
@@ -93,6 +97,8 @@ impl DiagnosticCode {
             DiagnosticCode::DiagramNotFound => "diagram.not_found",
             DiagnosticCode::UnsupportedSymbol => "symbol.unsupported",
             DiagnosticCode::IgnoredElement => "import.ignored_element",
+            DiagnosticCode::RasterMissingFonts => "raster.missing_fonts",
+            DiagnosticCode::RasterFontSubstituted => "raster.font_substituted",
         }
     }
 }

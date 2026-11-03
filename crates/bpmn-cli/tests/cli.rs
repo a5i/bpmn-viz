@@ -65,7 +65,9 @@ fn render_png_with_scale_exit_zero() {
     ]);
     assert_eq!(code, 0, "stderr: {stderr}");
     let png = std::fs::read(&output).expect("png exists");
-    assert_eq!(bpmn_raster::png_dimensions(&png), Some((632, 200)));
+    // 648 (not 632) since TASK-017: the start-event BPMNLabel at x=152 sits
+    // left of the shape union and extends the viewport.
+    assert_eq!(bpmn_raster::png_dimensions(&png), Some((648, 200)));
     std::fs::remove_file(&output).unwrap();
 }
 
