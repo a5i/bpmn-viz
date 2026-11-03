@@ -11,7 +11,7 @@ use bpmn_model::di::{Bounds, BpmnLabel, Diagram, Edge, Plane, Point, Shape};
 use bpmn_model::element::{
     Artifact, Collaboration, Definitions, EventDefinition, FlowElement, FlowNode, GatewayType,
     Lane, LaneSet, MessageFlow, NodeKind, Participant, Process, RootElement, SequenceFlow,
-    TaskType, TextAnnotation,
+    TaskType, TextAnnotation, UnsupportedElement,
 };
 use bpmn_model::{BpmnDocument, Diagnostic, DiagnosticCode, SourceLocation};
 use quick_xml::NsReader;
@@ -85,6 +85,7 @@ pub fn from_xml_with_options(
             ),
         ));
     }
+    parser.definitions.unsupported = parser.unsupported;
     Ok(BpmnDocument {
         definitions: parser.definitions,
         parse_diagnostics: parser.diagnostics,
@@ -133,6 +134,8 @@ struct Parser<'a> {
     depth: usize,
     max_depth: usize,
     ignored_elements: usize,
+    /// Elements modeled only for id/DI resolution, in source order.
+    unsupported: Vec<UnsupportedElement>,
 }
 
 /// Per-node content captured from children.
@@ -156,6 +159,7 @@ impl<'a> Parser<'a> {
             depth: 0,
             max_depth,
             ignored_elements: 0,
+            unsupported: Vec::new(),
         }
     }
 
@@ -481,6 +485,14 @@ impl<'a> Parser<'a> {
                                 process.artifacts.push(Artifact::TextAnnotation(annotation));
                             }
                         })
+                    } else if name.matches(BPMN_MODEL, "ioSpecification") {
+                        self.parse_io_specification(&child)
+                    } else if name.namespace.as_deref() == Some(BPMN_MODEL)
+                        && (Parser::is_data_shape(&name.local) || is_association_name(&name.local))
+                    {
+                        let (child_attrs, _) = self.attributes(&child);
+                        self.note_unsupported_element(&child_attrs, &name.local);
+                        self.skip_subtree(&child)
                     } else if is_flow_element_name(&name) {
                         self.parse_flow_element(&child, &name, false)
                             .map(|element| {
@@ -504,6 +516,11 @@ impl<'a> Parser<'a> {
                         if let Some(annotation) = self.parse_text_annotation(&child, true)? {
                             process.artifacts.push(Artifact::TextAnnotation(annotation));
                         }
+                    } else if name.namespace.as_deref() == Some(BPMN_MODEL)
+                        && (Parser::is_data_shape(&name.local) || is_association_name(&name.local))
+                    {
+                        let (child_attrs, _) = self.attributes(&child);
+                        self.note_unsupported_element(&child_attrs, &name.local);
                     } else if is_flow_element_name(&name) {
                         if let Some(element) = self.parse_flow_element(&child, &name, true)? {
                             process.flow_elements.push(element);
@@ -519,6 +536,73 @@ impl<'a> Parser<'a> {
                 }
                 Event::Eof => {
                     return Err(self.syntax_error("unexpected end of document inside `process`"));
+                }
+                _ => {}
+            }
+        }
+    }
+
+    /// Records a data-shape or association element for id/DI resolution.
+    fn note_unsupported_element(&mut self, attrs: &[(String, String)], local: &str) {
+        if let Some(id) = attr_value(attrs, "id").filter(|id| !id.is_empty()) {
+            self.unsupported.push(UnsupportedElement {
+                id,
+                local_name: local.to_string(),
+            });
+        }
+    }
+
+    /// True when `local` is a data shape that needs a DI shape to render.
+    fn is_data_shape(local: &str) -> bool {
+        matches!(
+            local,
+            "dataObject"
+                | "dataObjectReference"
+                | "dataStoreReference"
+                | "dataInput"
+                | "dataOutput"
+        )
+    }
+
+    /// `ioSpecification` children (`dataInput`/`dataOutput`) are recorded as
+    /// unsupported elements; everything else inside is skipped.
+    fn parse_io_specification(&mut self, _start: &BytesStart<'_>) -> Result<(), ParseError> {
+        loop {
+            let (_, event) = match self.reader.read_resolved_event() {
+                Ok(pair) => pair,
+                Err(error) => return Err(self.syntax_error(format!("malformed XML: {error}"))),
+            };
+            match event {
+                Event::Start(child) => {
+                    self.enter()?;
+                    let name = self.resolve_name(child.name());
+                    let result = if matches!(name.local.as_str(), "dataInput" | "dataOutput")
+                        && name.namespace.as_deref() == Some(BPMN_MODEL)
+                    {
+                        let (child_attrs, _) = self.attributes(&child);
+                        self.note_unsupported_element(&child_attrs, &name.local);
+                        self.skip_subtree(&child)
+                    } else {
+                        self.ignored_elements += 1;
+                        self.skip_subtree(&child)
+                    };
+                    self.leave();
+                    result?;
+                }
+                Event::Empty(child) => {
+                    let name = self.resolve_name(child.name());
+                    if matches!(name.local.as_str(), "dataInput" | "dataOutput")
+                        && name.namespace.as_deref() == Some(BPMN_MODEL)
+                    {
+                        let (child_attrs, _) = self.attributes(&child);
+                        self.note_unsupported_element(&child_attrs, &name.local);
+                    }
+                }
+                Event::End(_) => return Ok(()),
+                Event::Eof => {
+                    return Err(
+                        self.syntax_error("unexpected end of document inside `ioSpecification`")
+                    );
                 }
                 _ => {}
             }
@@ -788,6 +872,13 @@ impl<'a> Parser<'a> {
                 "intermediateThrowEvent" => NodeKind::IntermediateThrowEvent {
                     definition: content.event_definition,
                 },
+                "boundaryEvent" => NodeKind::BoundaryEvent {
+                    attached_to: attr_value(&attrs, "attachedToRef"),
+                    cancel_activity: attr_value(&attrs, "cancelActivity")
+                        .map(|value| value != "false")
+                        .unwrap_or(true),
+                    definition: content.event_definition,
+                },
                 _ => kind_from_name(&node_name, xsi_type.as_deref()),
             };
             (content, kind)
@@ -911,6 +1002,14 @@ impl<'a> Parser<'a> {
                                 content.outgoing.push(text.trim().to_string());
                             }
                         })
+                    } else if name.matches(BPMN_MODEL, "ioSpecification") {
+                        self.parse_io_specification(&child)
+                    } else if name.namespace.as_deref() == Some(BPMN_MODEL)
+                        && (Parser::is_data_shape(&name.local) || is_association_name(&name.local))
+                    {
+                        let (child_attrs, _) = self.attributes(&child);
+                        self.note_unsupported_element(&child_attrs, &name.local);
+                        self.skip_subtree(&child)
                     } else {
                         if let Some(found) =
                             event_definition(&name.local, name.namespace.as_deref())
@@ -1685,6 +1784,14 @@ fn kind_from_name(node_name: &str, xsi_type: Option<&str>) -> NodeKind {
     }
 }
 
+/// True for association-flavored elements (P1 rendering, id resolution only).
+fn is_association_name(local: &str) -> bool {
+    matches!(
+        local,
+        "association" | "dataInputAssociation" | "dataOutputAssociation"
+    )
+}
+
 /// True for element names the parser models as flow elements.
 fn is_flow_element_name(name: &ResolvedName) -> bool {
     if name.namespace.as_deref() != Some(BPMN_MODEL) {
@@ -1696,6 +1803,7 @@ fn is_flow_element_name(name: &ResolvedName) -> bool {
             | "endEvent"
             | "intermediateCatchEvent"
             | "intermediateThrowEvent"
+            | "boundaryEvent"
             | "task"
             | "userTask"
             | "serviceTask"

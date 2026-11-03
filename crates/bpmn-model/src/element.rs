@@ -16,6 +16,9 @@ pub struct Definitions {
     pub root_elements: Vec<RootElement>,
     /// Diagrams in source order; selection index follows this order.
     pub diagrams: Vec<crate::di::Diagram>,
+    /// Elements modeled only for id and DI resolution (data shapes and
+    /// associations), in source order.
+    pub unsupported: Vec<UnsupportedElement>,
 }
 
 /// A root element under `definitions`.
@@ -176,17 +179,38 @@ pub struct FlowNode {
 #[derive(Debug, Clone)]
 pub enum NodeKind {
     /// Start event; `definition` selects the marker glyph.
-    StartEvent { definition: EventDefinition },
+    /// Boundary event attached to an activity.
+    BoundaryEvent {
+        /// `attachedToRef` activity id.
+        attached_to: Option<String>,
+        /// `cancelActivity` attribute (default true).
+        cancel_activity: bool,
+        /// Marker element found inside the event, if any.
+        definition: EventDefinition,
+    },
+    StartEvent {
+        definition: EventDefinition,
+    },
     /// End event.
-    EndEvent { definition: EventDefinition },
+    EndEvent {
+        definition: EventDefinition,
+    },
     /// Intermediate catch event.
-    IntermediateCatchEvent { definition: EventDefinition },
+    IntermediateCatchEvent {
+        definition: EventDefinition,
+    },
     /// Intermediate throw event.
-    IntermediateThrowEvent { definition: EventDefinition },
+    IntermediateThrowEvent {
+        definition: EventDefinition,
+    },
     /// Task or one of the common task kinds.
-    Task { task_type: TaskType },
+    Task {
+        task_type: TaskType,
+    },
     /// Gateway.
-    Gateway { gateway_type: GatewayType },
+    Gateway {
+        gateway_type: GatewayType,
+    },
     /// Embedded subprocess; `body` holds nested flow elements.
     SubProcess {
         /// Semantic `triggeredByEvent` attribute.
@@ -345,11 +369,21 @@ pub struct Collaboration {
     pub message_flows: Vec<MessageFlow>,
 }
 
-/// Process artifacts (P0: text annotations).
+/// Process artifacts (P0: text annotations; data shapes render as fallbacks).
 #[derive(Debug, Clone)]
 pub enum Artifact {
     /// A `bpmn:textAnnotation`.
     TextAnnotation(TextAnnotation),
+    /// A recognized BPMN element outside the P0 rendering subset (data
+    /// objects, data stores, data/association flows). It keeps its id so
+    /// references and DI resolve; it renders as a fallback glyph with a
+    /// warning (SPEC-001 section 2).
+    Unsupported {
+        /// Element id.
+        id: String,
+        /// Local name, e.g. `dataStoreReference` or `dataOutputAssociation`.
+        local_name: String,
+    },
 }
 
 impl Artifact {
@@ -357,8 +391,28 @@ impl Artifact {
     pub fn id(&self) -> &str {
         match self {
             Artifact::TextAnnotation(annotation) => &annotation.id,
+            Artifact::Unsupported { id, .. } => id,
         }
     }
+
+    /// Local name of the underlying BPMN element.
+    pub fn local_name(&self) -> &str {
+        match self {
+            Artifact::TextAnnotation(_) => "textAnnotation",
+            Artifact::Unsupported { local_name, .. } => local_name,
+        }
+    }
+}
+
+/// An element modeled only for id and DI resolution (see [`Artifact::Unsupported`]
+/// for the process-level concept). Lives at `definitions` level so DI
+/// references resolve regardless of where the element appeared.
+#[derive(Debug, Clone)]
+pub struct UnsupportedElement {
+    /// Element id.
+    pub id: String,
+    /// Local name of the BPMN element.
+    pub local_name: String,
 }
 
 /// A `bpmn:textAnnotation` with its text content.

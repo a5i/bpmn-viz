@@ -134,6 +134,7 @@ fn kind_name(kind: &NodeKind) -> &'static str {
         NodeKind::EndEvent { .. } => "endEvent",
         NodeKind::IntermediateCatchEvent { .. } => "intermediateCatchEvent",
         NodeKind::IntermediateThrowEvent { .. } => "intermediateThrowEvent",
+        NodeKind::BoundaryEvent { .. } => "boundaryEvent",
         NodeKind::Task { .. } => "task",
         NodeKind::Gateway { .. } => "gateway",
         NodeKind::SubProcess { .. } => "subProcess",

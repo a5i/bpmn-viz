@@ -114,6 +114,48 @@ pub fn check_geometry(document: &BpmnDocument) -> Vec<Diagnostic> {
         })
     };
 
+    // Data shapes must have geometry; associations only need to resolve.
+    let data_shapes: Vec<(String, &'static str)> = document
+        .definitions
+        .unsupported
+        .iter()
+        .filter(|element| {
+            matches!(
+                element.local_name.as_str(),
+                "dataObject"
+                    | "dataObjectReference"
+                    | "dataStoreReference"
+                    | "dataInput"
+                    | "dataOutput"
+            )
+        })
+        .filter(|element| {
+            // Only data shapes that the DI actually references require
+            // geometry; unreferenced definitions are inert (C.8.0 style).
+            let id = element.id.as_str();
+            !shaped.contains(id)
+                && document.definitions.diagrams.iter().any(|diagram| {
+                    diagram
+                        .plane
+                        .shapes
+                        .iter()
+                        .map(|element| &element.bpmn_element)
+                        .chain(
+                            diagram
+                                .plane
+                                .edges
+                                .iter()
+                                .map(|element| &element.bpmn_element),
+                        )
+                        .any(|referenced| referenced == id)
+                })
+        })
+        .map(|element| (element.id.clone(), "data shape"))
+        .collect();
+    for (id, kind) in data_shapes {
+        missing_shapes.push((id, kind));
+    }
+
     for root in &document.definitions.root_elements {
         match root {
             bpmn_model::element::RootElement::Process(process) => {

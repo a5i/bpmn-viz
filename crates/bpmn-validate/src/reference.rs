@@ -26,6 +26,11 @@ pub struct IdRegistry {
     pub artifacts: HashSet<String>,
     /// Process ids.
     pub processes: HashSet<String>,
+    /// Unsupported element ids (data shapes and associations).
+    pub unsupported: HashSet<String>,
+    /// Association-flavored unsupported ids (DI edges may reference them;
+    /// no DI shape is required).
+    pub unsupported_associations: HashSet<String>,
 }
 
 impl IdRegistry {
@@ -38,6 +43,7 @@ impl IdRegistry {
             || self.lanes.contains(id)
             || self.artifacts.contains(id)
             || self.processes.contains(id)
+            || self.unsupported.contains(id)
     }
 }
 
@@ -53,6 +59,8 @@ pub fn build_registry(document: &BpmnDocument) -> IdRegistry {
         lanes: HashSet::new(),
         artifacts: HashSet::new(),
         processes: HashSet::new(),
+        unsupported: HashSet::new(),
+        unsupported_associations: HashSet::new(),
     };
     let mut note = |registry: &mut IdRegistry, id: &str, scope: &str| {
         *registry.counts.entry(id.to_string()).or_insert(0) += 1;
@@ -104,6 +112,13 @@ pub fn build_registry(document: &BpmnDocument) -> IdRegistry {
                     registry.message_flows.insert(flow.id.clone());
                 }
             }
+        }
+    }
+    for element in &document.definitions.unsupported {
+        note(&mut registry, &element.id, "<definitions>");
+        registry.unsupported.insert(element.id.clone());
+        if is_association_name(&element.local_name) {
+            registry.unsupported_associations.insert(element.id.clone());
         }
     }
     for diagram in &document.definitions.diagrams {
@@ -262,6 +277,9 @@ pub fn check_references(document: &BpmnDocument) -> Vec<Diagnostic> {
         for edge in &diagram.plane.edges {
             if !registry.flows.contains(&edge.bpmn_element)
                 && !registry.message_flows.contains(&edge.bpmn_element)
+                && !registry
+                    .unsupported_associations
+                    .contains(&edge.bpmn_element)
             {
                 diagnostics.push(
                     Diagnostic::error(
@@ -326,6 +344,14 @@ fn check_flows_in_body(
             }
         }
     }
+}
+
+/// True for association-flavored local names (public for geometry checks).
+pub fn is_association_name(local: &str) -> bool {
+    matches!(
+        local,
+        "association" | "dataInputAssociation" | "dataOutputAssociation"
+    )
 }
 
 fn check_ref(diagnostics: &mut Vec<Diagnostic>, registry: &IdRegistry, id: &str, context: &str) {

@@ -41,8 +41,9 @@ pub(crate) fn build_indexes<'a>(
             &mut annotations,
         );
         for artifact in &process.artifacts {
-            let bpmn_model::element::Artifact::TextAnnotation(annotation) = artifact;
-            annotations.insert(annotation.id.as_str(), annotation);
+            if let bpmn_model::element::Artifact::TextAnnotation(annotation) = artifact {
+                annotations.insert(annotation.id.as_str(), annotation);
+            }
         }
     }
     let mut participants = HashMap::new();

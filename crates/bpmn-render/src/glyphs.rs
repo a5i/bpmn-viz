@@ -112,6 +112,9 @@ pub fn draw_node(
         NodeKind::StartEvent { definition } => {
             draw_event(scene, &id, shape, options, false, false, *definition);
         }
+        NodeKind::BoundaryEvent { definition, .. } => {
+            draw_event(scene, &id, shape, options, false, true, *definition);
+        }
         NodeKind::EndEvent { definition } => {
             draw_event(scene, &id, shape, options, true, false, *definition);
         }

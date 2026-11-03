@@ -13,7 +13,7 @@ pub use diagnostic::{Diagnostic, DiagnosticCode, Severity, SourceLocation};
 pub use element::{
     Artifact, Collaboration, Definitions, EventDefinition, FlowElement, FlowNode, GatewayType,
     Lane, LaneSet, MessageFlow, NodeKind, Participant, Process, RootElement, SequenceFlow,
-    TaskType, TextAnnotation,
+    TaskType, TextAnnotation, UnsupportedElement,
 };
 
 /// A fully parsed BPMN document: semantics plus Diagram Interchange.
